@@ -130,11 +130,7 @@ nav.tabs button[aria-selected=true]{color:var(--accent);box-shadow:inset 0 3px 0
         <div id="doneMsg" class="hidden" role="status"></div>
         <div id="cartEmpty" class="muted">Escanea una etiqueta o toca un artículo para añadirlo.</div>
         <div id="cartForm" class="stack hidden" style="margin-top:12px">
-          <div>
-            <label for="destino">¿A dónde va? (apartamento o lugar)</label>
-            <input id="destino" type="text" list="destinos" maxlength="80" autocomplete="off" placeholder="Ej. Calderón 3, Oficina…">
-            <datalist id="destinos"></datalist>
-          </div>
+          <datalist id="destinos"></datalist>
           <div>
             <label for="nota">Nota (opcional)</label>
             <input id="nota" type="text" maxlength="200" autocomplete="off">
@@ -198,7 +194,7 @@ const DESTINOS = ["1.C.Campos_9_3I", "1.C.San-Bartolome_10_3", "1.C.San-Bartolom
 
 const DEMO = new URLSearchParams(location.search).has('demo');
 const $ = id => document.getElementById(id);
-const S = { emp: '', pin: '', nombre: '', admin: false, productos: [], stock: {}, cart: [], hist: [], busy: false };
+const S = { lastDestino: '', emp: '', pin: '', nombre: '', admin: false, productos: [], stock: {}, cart: [], hist: [], busy: false };
 
 // ---------- utilidades ----------
 function el(tag, props, ...kids) {
@@ -271,7 +267,7 @@ $('fLogin').addEventListener('submit', async ev => {
 });
 function logout() {
   try { sessionStorage.removeItem('alm'); } catch (e) {}
-  Object.assign(S, { emp: '', pin: '', nombre: '', admin: false, cart: [], stock: {}, hist: [] });
+  Object.assign(S, { lastDestino: '', emp: '', pin: '', nombre: '', admin: false, cart: [], stock: {}, hist: [] });
   renderCart(); show('login'); loadEmpleados();
 }
 document.querySelectorAll('.btnLogout').forEach(a => a.addEventListener('click', e => { e.preventDefault(); logout(); }));
@@ -323,9 +319,10 @@ function porCodigo(c) {
 
 // ---------- carrito ----------
 function addToCart(p) {
-  const ya = S.cart.find(i => i.id === p.id);
-  if (ya) { ya.cantidad++; toast(`${p.name}: ${ya.cantidad}`); }
-  else { S.cart.push({ id: p.id, sku: p.sku, name: p.name, cantidad: 1, msg: null }); toast('Añadido: ' + p.name); consultarStock(p.id); }
+  const ya = [...S.cart].reverse().find(i => i.id === p.id);
+  if (ya) { ya.cantidad = (Number(ya.cantidad) || 0) + 1; ya.msg = null; toast(`${p.name}: ${ya.cantidad}`); }
+  else { S.cart.push({ id: p.id, sku: p.sku, name: p.name, cantidad: 1, destino: S.lastDestino || '', msg: null }); toast('Añadido: ' + p.name); }
+  if (S.stock[p.id] === undefined) consultarStock(p.id);
   renderCart();
 }
 async function consultarStock(id) {
@@ -345,10 +342,13 @@ function renderCart() {
       inp,
       el('button', { type: 'button', 'aria-label': 'Más', onclick: () => { i.cantidad = (Number(i.cantidad) || 0) + 1; i.msg = null; renderCart(); } }, '+'),
       el('button', { type: 'button', class: 'btn small', onclick: () => { i.cantidad = (Number(i.cantidad) || 0) + 10; i.msg = null; renderCart(); } }, '+10'));
+    const dest = el('input', { type: 'text', list: 'destinos', maxlength: '80', autocomplete: 'off', placeholder: '¿A dónde va? (apartamento o lugar)', value: i.destino || '', 'aria-label': 'Destino de ' + i.name, style: 'margin-top:8px' });
+    dest.addEventListener('input', () => { i.destino = dest.value; S.lastDestino = dest.value; i.msg = null; });
+    const otro = el('button', { type: 'button', class: 'btn small', style: 'margin-top:8px', onclick: () => { S.cart.splice(S.cart.indexOf(i) + 1, 0, { id: i.id, sku: i.sku, name: i.name, cantidad: 1, destino: '', msg: null }); renderCart(); } }, '＋ Mismo artículo, otro destino');
     const item = el('div', { class: 'item' },
       el('div', { class: 't' }, el('b', { text: i.name }), el('button', { class: 'x', type: 'button', 'aria-label': 'Quitar', onclick: () => { S.cart = S.cart.filter(x => x !== i); renderCart(); } }, '✕')),
       el('div', { class: 's', text: i.sku + (disp !== undefined ? ` · disponibles: ${disp}` : '') }),
-      stepper);
+      stepper, dest, otro);
     if (!i.msg && disp !== undefined && Number(i.cantidad) > disp) item.append(el('div', { class: 'line-err', text: `Solo hay ${disp} disponibles.` }));
     if (i.msg) item.append(el('div', { class: i.msg.ok ? 'line-ok' : 'line-err', text: i.msg.text }));
     box.append(item);
@@ -367,9 +367,9 @@ function refreshBadges(n) {
 $('btnSend').addEventListener('click', async () => {
   if (S.busy) return;
   const box = $('sendMsg'); box.textContent = ''; box.className = ''; $('doneMsg').classList.add('hidden');
-  const destino = $('destino').value.trim(), nota = $('nota').value.trim();
-  if (!destino) { box.className = 'err'; box.textContent = 'Indica a dónde va el material.'; $('destino').focus(); return; }
+  const nota = $('nota').value.trim();
   for (const i of S.cart) {
+    if (!(i.destino || '').trim()) { box.className = 'err'; box.textContent = `Indica a dónde va "${i.name}".`; return; }
     const c = Number(i.cantidad);
     if (!Number.isInteger(c) || c < 1) { box.className = 'err'; box.textContent = `Revisa la cantidad de "${i.name}".`; return; }
   }
@@ -377,7 +377,7 @@ $('btnSend').addEventListener('click', async () => {
   let hechas = 0, fallos = 0, avisos = [];
   for (const i of [...S.cart]) {
     if (!i.request_id) i.request_id = uuid(); // mismo id si se reintenta: evita duplicados
-    const r = await api('retirar', { product_id: i.id, sku: i.sku, producto: i.name, cantidad: Number(i.cantidad), destino, nota, request_id: i.request_id });
+    const r = await api('retirar', { product_id: i.id, sku: i.sku, producto: i.name, cantidad: Number(i.cantidad), destino: i.destino.trim(), nota, request_id: i.request_id });
     if (r.ok || r.duplicado) {
       hechas++; if (r.aviso) avisos.push(r.aviso);
       S.cart = S.cart.filter(x => x !== i);
@@ -387,7 +387,7 @@ $('btnSend').addEventListener('click', async () => {
   S.busy = false; btn.disabled = false;
   renderCart();
   if (fallos === 0) {
-    $('destino').value = ''; $('nota').value = '';
+    $('nota').value = ''; S.lastDestino = '';
     const d = $('doneMsg'); d.className = avisos.length ? 'warnbox' : 'okbox'; d.style.marginBottom = '10px';
     d.textContent = avisos.length ? avisos[0] : `✓ Retirada registrada (${hechas} ${hechas === 1 ? 'artículo' : 'artículos'}).`;
     clearTimeout(S.doneT); S.doneT = setTimeout(() => d.classList.add('hidden'), 6000);
@@ -463,10 +463,11 @@ $('btnScan').addEventListener('click', async () => {
   $('scanMsg').textContent = 'Apunta al código de barras de la etiqueta';
   const st = scanState = { stream, stop: false, last: '', lastT: 0 };
   const onCode = raw => {
-    const now = Date.now(); if (raw === st.last && now - st.lastT < 2500) return;
+    if (st.stop) return;
+    const now = Date.now(); if (raw === st.last && now - st.lastT < 1500) return;
     st.last = raw; st.lastT = now;
     const p = porCodigo(raw);
-    if (p) { addToCart(p); if (navigator.vibrate) navigator.vibrate(60); $('scanMsg').textContent = '✓ ' + p.name; }
+    if (p) { st.stop = true; if (navigator.vibrate) navigator.vibrate(60); closeScan(); addToCart(p); }
     else { $('scanMsg').textContent = 'Código no reconocido: ' + raw; }
   };
   try {
