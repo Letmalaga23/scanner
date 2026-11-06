@@ -104,6 +104,7 @@ nav.tabs button[aria-selected=true]{color:var(--accent);box-shadow:inset 0 3px 0
     <div id="loginErr" class="err hidden" role="alert"></div>
     <button id="btnLogin" class="btn primary block" type="submit">Entrar</button>
   </form>
+  <p class="muted" style="text-align:center;margin-top:14px">Versión <span class="ver"></span></p>
 </main>
 
 <!-- APP -->
@@ -140,6 +141,7 @@ nav.tabs button[aria-selected=true]{color:var(--accent);box-shadow:inset 0 3px 0
         </div>
       </div>
     </div>
+    <p class="muted" style="text-align:center;margin-top:18px">Versión <span class="ver"></span></p>
   </section>
 
   <section id="tHistorial" class="wrap hidden">
@@ -179,6 +181,7 @@ nav.tabs button[aria-selected=true]{color:var(--accent);box-shadow:inset 0 3px 0
   <div class="frame"></div>
   <div class="bar">
     <div class="grow" id="scanMsg">Apunta al código de barras de la etiqueta</div>
+    <button id="btnTorch" class="btn hidden" type="button" aria-label="Linterna">🔦</button>
     <button id="btnScanClose" class="btn" type="button">Cerrar</button>
   </div>
 </div>
@@ -192,6 +195,8 @@ const EXTRA_DESTINOS = ['Almacén central', 'Oficina', 'Lavandería'];
 const DESTINOS = ["1.C.Campos_9_3I", "1.C.San-Bartolome_10_3", "1.C.San-Bartolome_10_4", "1.C.San-Bartolome_10_Bajo", "1.Oria_57_bajo_C", "1.c.campos_9_3D_1", "1.c.campos_9_3D_2", "Agustin_montes_7_A", "Agustin_montes_7_B", "Alcántara_2_2_D", "Allende_256_1D", "Allende_256_2", "Alvarez_4_1", "Andalucia_11_3A", "Andalucia_11_3B", "Andalucia_11_3C", "Andalucia_11_3D", "Arroyo_Angeles_A", "Arroyo_Angeles_B", "Av_Pintor_Sorolla_54_1_C", "Avda_Manuel_A_H_22_5_2", "Brasil_12_A", "Brasil_12_B", "Brasil_12_C", "Calderon_3_3b_Carmen", "Camino_Gibralfaro_7_7_4", "Capitan_huelin_19", "Capitan_huelin_21", "Capu_13_1", "Capu_13_3", "Capu_13_4", "Carreteria_92_2E_Gisela", "Carril_Contreras_A", "Carril_Contreras_B", "Carril_Contreras_C", "Cenacheros_34_1", "Cenacheros_34_1-2", "Cenacheros_34_2", "Cenacheros_34_2-2", "Clemens_11_1_A", "Clemens_11_1_B", "Clemens_11_1_C", "Clemens_11_Bajo", "Clemens_8_1", "Clemens_8_Bajo", "Comandante_14_9C", "Comedias_1_3", "Comedias_1_4", "Comico_riquelme_6_A", "Comico_riquelme_6_B", "Compas_Victoria_2_2-I", "Coto_doñana_1B", "Coto_doñana_2B", "Coto_doñana_3A", "Coto_doñana_3B", "Coto_doñana_Bajo", "Coto_doñana_atico", "Duque_Rivas_10_3H", "Duque_Rivas_10_3H-2", "Duque_Rivas_10_4-I", "Duque_Rivas_10_4-I-2", "Echeverria_13_1-2", "Faro_1_3_C", "Fernandez_Shaw_45", "Fernandez_Shaw_49", "Fragata_9_F3_studio", "Fragata_9_F4_A", "Gazules_7_2-Dorm_Ala_A", "Gazules_7_2-Dorm_Ala_C", "Gazules_7_2Dorm_Bajo_B", "Gazules_7_3Dorm_Bajo_A", "Gazules_7_studio", "General_Narvaez_11", "Gevora_2_5-2", "Gomez-Ocaña_5_1", "Gomez-Ocaña_5_2", "Gomez-Ocaña_5_3", "Gomez-Ocaña_5_4", "Gomez-Ocaña_5_5", "Gomez-Ocaña_5_6", "Gomez-Pallete_7_4-3", "Granada_32_2A", "Granada_32_2B", "Granada_52_1", "Granada_52_2", "Huerta-Obispo_22_1D-2", "Infantes_2_2", "Jabega_57_1-A", "Jabega_57_1-B", "Jabega_57_Bajo_A", "Juan_de_Herrera_44_B", "Juan_de_Padilla_11_1_D", "La_Union_1_1_E", "La_colina_164", "Leopoldo_Alas_Clarín_4", "Letmalaga_Av_Julio_iglesi", "Letplanet Jupiter", "Louis_Pasteur_21", "Madre-de-Dios_24_1", "Malasaña_5_6_C", "Marcos_Obregón_7_8-4", "Margarita_Xirgu_4", "Marques_Guadiaro_7", "Martiricos_30_2H", "Martiricos_40_24L", "Martiricos_40_24L_Parking", "Matias_Rubio_13_1", "Matias_Rubio_13_2", "Matias_Rubio_13_3", "Matias_Rubio_13_4", "Mauricio_Moro_A", "Mauricio_Moro_B", "Mauricio_Moro_C", "Menita_23_Bajo", "Ollerías_21", "Orfila_12_4_4", "Pacifico_18Parking3_-2_74", "Pacifico_18_3-7C", "Pacifico_Playa_19_2J", "Pacifico_Playa_19_2J-2", "Pepote_49", "Perez_Escrich_1", "Perez_Escrich_Bajo", "Pintor_Rosales_1", "Pintor_Rosales_2", "Pintor_Rosales_3", "Pintor_Rosales_4", "Pintor_Rosales_5", "Pintor_Rosales_6", "Pintor_Rosales_7", "Pio_XII_Hab0", "Pio_XII_Hab0_Cama1", "Pio_XII_Hab0_Cama2", "Pio_XII_Hab1", "Pio_XII_Hab10", "Pio_XII_Hab11", "Pio_XII_Hab2", "Pio_XII_Hab3", "Pio_XII_Hab4", "Pio_XII_Hab5", "Pio_XII_Hab5_Cama1", "Pio_XII_Hab5_Cama2", "Pio_XII_Hab6", "Pio_XII_Hab7", "Pio_XII_Hab8", "Pio_XII_Hab8_Cama1", "Pio_XII_Hab8_Cama2", "Pio_XII_Hab9", "Pio_XII_Studio_1", "Pio_XII_Studio_2", "Playa_Virginia_11", "Playa_park_13_Confort", "Playa_park_13_Parking", "Playa_park_13_Premium", "Playa_park_13_Standar", "Playa_park_13_Superior", "Plaza-del-Teatro-Tejon_25", "Plaza-del-Teatro-tParking", "Plaza_toros_vieja_24_4ª_A", "Plaza_toros_vieja_6_1A", "Pozos_Dulces_14_B", "Pozos_Dulces_14_C", "Pozos_Dulces_14_a", "Pozos_Dulces_14_d", "Princesa_Huelin_19-A", "Princesa_Huelin_19-B", "Princesa_Huelin_19-STUDIO", "Puerto_7_1", "Puerto_7_2", "Puerto_7_3", "Puerto_7_4", "Puerto_7_5", "Puerto_7_5-209_Parking", "Puerto_7_5-210_Parking", "Reding_11_7_X'", "Reding_11_7_X_PARKING_85", "Rodriguez_Berlanga_1_5_E", "Ronda_2_infantes_49", "Salitre_26_A", "Salitre_26_B", "San_Andres_21_4A", "San_Quintin", "San_Quintin_58_A", "San_Quintin_58_B", "San_Quintin_58_C", "San_Telmo_16_1-C", "San_Telmo_Bajo_D", "Sancha_10-12_1_A2", "Souviron_4_2-I", "Victoria_16_1B_EXT-A", "Victoria_16_1B_INT_B", "Vázquez_Claver_17_Atico", "Vázquez_Claver_17_drcha", "Vázquez_Claver_17_izq", "empedrada_St", "fernando_prado_1_3_E", "fuengirola_Cam_Santiago67"];
 // ===========================
 
+const VERSION = 'v3 · escáner más rápido · lector USB/Bluetooth';
+document.querySelectorAll('.ver').forEach(n => n.textContent = VERSION);
 const DEMO = new URLSearchParams(location.search).has('demo');
 const $ = id => document.getElementById(id);
 const S = { lastDestino: '', emp: '', pin: '', nombre: '', admin: false, productos: [], stock: {}, cart: [], hist: [], busy: false };
@@ -446,8 +451,23 @@ $('btnCsv').addEventListener('click', () => {
   document.body.append(a); a.click(); a.remove();
 });
 
+// lector USB/Bluetooth: si no hay ningún campo activo, lo que "teclea" va al buscador
+document.addEventListener('keydown', e => {
+  if (e.ctrlKey || e.metaKey || e.altKey || e.key.length !== 1) return;
+  if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) return;
+  if ($('vApp').classList.contains('hidden') || $('tRetirar').classList.contains('hidden') || !$('scan').classList.contains('hidden')) return;
+  $('q').focus();
+});
+
 // ---------- escáner ----------
 let scanState = null;
+function beep() {
+  try {
+    const A = window.AudioContext || window.webkitAudioContext; if (!A) return;
+    const c = beep.c || (beep.c = new A()), o = c.createOscillator(), g = c.createGain();
+    o.frequency.value = 1100; g.gain.value = 0.12; o.connect(g); g.connect(c.destination); o.start(); o.stop(c.currentTime + 0.12);
+  } catch (e) {}
+}
 async function loadZXing() {
   if (window.ZXing) return window.ZXing;
   await new Promise((ok, ko) => { const s = document.createElement('script'); s.src = 'https://cdn.jsdelivr.net/npm/@zxing/library@0.21.3/umd/index.min.js'; s.onload = ok; s.onerror = () => ko(new Error('zxing')); document.head.append(s); });
@@ -457,9 +477,16 @@ $('btnScan').addEventListener('click', async () => {
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { toast('Este navegador no permite usar la cámara. Usa el buscador.', 3500); return; }
   $('scan').classList.remove('hidden'); $('scanMsg').textContent = 'Abriendo cámara…';
   let stream;
-  try { stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } }, audio: false }); }
+  try { stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' }, width: { ideal: 1920 }, height: { ideal: 1080 } }, audio: false }); }
   catch (e) { $('scan').classList.add('hidden'); toast('No hay permiso para la cámara. Actívalo en los ajustes del navegador o usa el buscador.', 4500); return; }
   const video = $('video'); video.srcObject = stream; await video.play().catch(() => {});
+  // enfoque continuo y linterna, si el móvil los permite
+  const track = stream.getVideoTracks()[0];
+  let caps = {}; try { caps = track.getCapabilities ? track.getCapabilities() : {}; } catch (e) {}
+  if (caps.focusMode && caps.focusMode.includes('continuous')) track.applyConstraints({ advanced: [{ focusMode: 'continuous' }] }).catch(() => {});
+  const bt = $('btnTorch'); bt.classList.toggle('hidden', !caps.torch);
+  let torchOn = false;
+  bt.onclick = () => { torchOn = !torchOn; track.applyConstraints({ advanced: [{ torch: torchOn }] }).catch(() => { torchOn = false; }); bt.style.background = torchOn ? 'var(--accent-soft)' : ''; };
   $('scanMsg').textContent = 'Apunta al código de barras de la etiqueta';
   const st = scanState = { stream, stop: false, last: '', lastT: 0 };
   const onCode = raw => {
@@ -467,23 +494,31 @@ $('btnScan').addEventListener('click', async () => {
     const now = Date.now(); if (raw === st.last && now - st.lastT < 1500) return;
     st.last = raw; st.lastT = now;
     const p = porCodigo(raw);
-    if (p) { st.stop = true; if (navigator.vibrate) navigator.vibrate(60); closeScan(); addToCart(p); }
+    if (p) { st.stop = true; if (navigator.vibrate) navigator.vibrate(60); beep(); closeScan(); addToCart(p); }
     else { $('scanMsg').textContent = 'Código no reconocido: ' + raw; }
   };
   try {
     if ('BarcodeDetector' in window) {
-      const det = new BarcodeDetector();
-      const tick = async () => { if (st.stop) return; try { const r = await det.detect(video); if (r[0]) onCode(r[0].rawValue); } catch (e) {} setTimeout(tick, 200); };
+      let det;
+      try {
+        const quiero = ['code_128', 'code_39', 'ean_13', 'ean_8', 'upc_a', 'itf', 'qr_code'];
+        const hay = BarcodeDetector.getSupportedFormats ? await BarcodeDetector.getSupportedFormats() : quiero;
+        const formats = quiero.filter(f => hay.includes(f));
+        det = formats.length ? new BarcodeDetector({ formats }) : new BarcodeDetector();
+      } catch (e) { det = new BarcodeDetector(); }
+      const tick = async () => { if (st.stop) return; try { const r = await det.detect(video); if (r[0]) onCode(r[0].rawValue); } catch (e) {} setTimeout(tick, 100); };
       tick();
     } else {
       const Z = await loadZXing();
       const canvas = document.createElement('canvas'); const ctx = canvas.getContext('2d', { willReadFrequently: true });
       const reader = new Z.MultiFormatReader();
-      reader.setHints(new Map([[Z.DecodeHintType.TRY_HARDER, true]]));
+      reader.setHints(new Map([[Z.DecodeHintType.TRY_HARDER, true],
+        [Z.DecodeHintType.POSSIBLE_FORMATS, [Z.BarcodeFormat.CODE_128, Z.BarcodeFormat.CODE_39, Z.BarcodeFormat.EAN_13, Z.BarcodeFormat.EAN_8, Z.BarcodeFormat.ITF, Z.BarcodeFormat.QR_CODE]]]));
       const loop = () => {
         if (st.stop) return;
         if (video.videoWidth) {
-          canvas.width = video.videoWidth; canvas.height = video.videoHeight; ctx.drawImage(video, 0, 0);
+          const esc = Math.min(1, 960 / video.videoWidth);
+          canvas.width = Math.round(video.videoWidth * esc); canvas.height = Math.round(video.videoHeight * esc); ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
           try {
             const img = ctx.getImageData(0, 0, canvas.width, canvas.height);
             const gray = new Uint8ClampedArray(canvas.width * canvas.height);
@@ -492,7 +527,7 @@ $('btnScan').addEventListener('click', async () => {
             onCode(reader.decode(bmp).getText());
           } catch (e) { /* no hay código en este fotograma */ }
         }
-        setTimeout(loop, 250);
+        setTimeout(loop, 150);
       };
       loop();
     }
