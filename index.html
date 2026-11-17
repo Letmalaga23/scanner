@@ -5,6 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0f5c4d">
 <meta name="robots" content="noindex">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Almacén">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <title>Almacén Letplanet</title>
 <style>
 :root{
@@ -30,7 +36,7 @@ h2{font-size:1.05rem;margin:0 0 10px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px}
 .stack>*+*{margin-top:12px}
 label{display:block;font-size:.85rem;color:var(--muted);margin:0 0 4px}
-input[type=text],input[type=search],input[type=password],input[type=number],input[type=tel],select,textarea{
+input[type=text],input[type=search],input[type=password],input[type=number],input[type=tel],input[type=date],select,textarea{
   width:100%;min-height:48px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--card);outline:none}
 input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
 .btn{min-height:48px;padding:0 18px;border:1px solid var(--line);border-radius:12px;background:var(--card);cursor:pointer;font-weight:600}
@@ -50,6 +56,8 @@ header.top .who{font-size:.85rem;color:var(--muted);text-align:right}
 .okbox{background:var(--accent-soft);color:var(--ok);padding:10px 12px;border-radius:10px;font-size:.92rem}
 .warnbox{background:var(--warn-soft);color:var(--warn);padding:10px 12px;border-radius:10px;font-size:.92rem}
 .pin{letter-spacing:.4em;text-align:center;font-size:1.4rem}
+.check{display:flex;gap:10px;align-items:center;font-size:.92rem;color:var(--ink);margin:0}
+.check input{width:20px;height:20px;min-height:0;flex:none}
 /* lista de productos */
 .prod{display:flex;align-items:center;gap:10px;padding:12px 4px;border-bottom:1px solid var(--line);cursor:pointer}
 .prod:last-child{border-bottom:0}
@@ -57,6 +65,14 @@ header.top .who{font-size:.85rem;color:var(--muted);text-align:right}
 .prod .n b{display:block;font-weight:600;overflow-wrap:anywhere}
 .prod .n span{font-size:.82rem;color:var(--muted)}
 .plus{width:40px;height:40px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font-size:1.4rem;font-weight:700;flex:none}
+/* chips y frecuentes */
+.chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;min-height:36px;padding:0 12px;border-radius:18px;border:1px solid var(--line);background:var(--card);font-size:.88rem;font-weight:600;color:var(--muted);cursor:pointer;white-space:nowrap}
+.chip[aria-pressed=true]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.freq .lbl{font-size:.8rem;color:var(--muted);margin-bottom:6px}
+.freq .btns{display:flex;flex-wrap:wrap;gap:6px}
+.freq .chip{max-width:100%;overflow:hidden;text-overflow:ellipsis;color:var(--accent);background:var(--accent-soft);border-color:transparent}
 /* carrito */
 .item{padding:12px 0;border-bottom:1px solid var(--line)}
 .item:last-child{border-bottom:0}
@@ -71,15 +87,33 @@ header.top .who{font-size:.85rem;color:var(--muted);text-align:right}
 .line-ok{color:var(--ok);font-size:.88rem;margin-top:6px}
 /* tabs */
 nav.tabs{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);display:flex;padding-bottom:env(safe-area-inset-bottom);z-index:20}
-nav.tabs button{flex:1;min-height:56px;background:none;border:0;font-weight:600;color:var(--muted);cursor:pointer}
+nav.tabs button{flex:1;min-width:0;min-height:56px;background:none;border:0;font-weight:600;font-size:.92rem;color:var(--muted);cursor:pointer;padding:0 2px}
 nav.tabs button[aria-selected=true]{color:var(--accent);box-shadow:inset 0 3px 0 var(--accent)}
 .badge{display:inline-block;min-width:20px;padding:0 6px;border-radius:10px;background:var(--accent);color:var(--accent-ink);font-size:.78rem;text-align:center;margin-left:4px}
-/* tabla historial */
+/* historial */
 .hrow{padding:10px 0;border-bottom:1px solid var(--line)}
 .hrow:last-child{border-bottom:0}
 .hrow .a{display:flex;justify-content:space-between;gap:8px;font-weight:600}
 .hrow .b{font-size:.85rem;color:var(--muted);margin-top:2px;overflow-wrap:anywhere}
 .qty{color:var(--danger);white-space:nowrap}
+.qty.in{color:var(--ok)}
+/* panel */
+.seg{display:flex;gap:6px}
+.seg .chip{flex:1}
+.srow{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+.srow:last-child{border-bottom:0}
+.srow .n{flex:1;min-width:0}
+.srow .n b{display:block;font-weight:600;overflow-wrap:anywhere}
+.srow .n span{font-size:.82rem;color:var(--muted)}
+.sq{min-width:52px;text-align:center;padding:4px 8px;border-radius:10px;font-weight:800;background:var(--accent-soft);color:var(--ok)}
+.sq.low{background:var(--warn-soft);color:var(--warn)}
+.sq.zero{background:var(--danger-soft);color:var(--danger)}
+details.apto{border-bottom:1px solid var(--line);padding:8px 0}
+details.apto:last-child{border-bottom:0}
+details.apto summary{display:flex;justify-content:space-between;gap:8px;cursor:pointer;font-weight:600;list-style:none}
+details.apto summary::-webkit-details-marker{display:none}
+details.apto .sub{font-size:.88rem;color:var(--muted);margin:6px 0 0;display:grid;gap:3px}
+details.apto .sub div{display:flex;justify-content:space-between;gap:8px}
 /* escáner */
 #scan{position:fixed;inset:0;background:#000;z-index:50;display:flex;flex-direction:column}
 #scan video{flex:1;width:100%;object-fit:cover;min-height:0}
@@ -88,12 +122,19 @@ nav.tabs button[aria-selected=true]{color:var(--accent);box-shadow:inset 0 3px 0
 #scan .frame{position:absolute;left:12%;right:12%;top:30%;height:22%;border:3px solid rgba(255,255,255,.85);border-radius:14px;box-shadow:0 0 0 100vmax rgba(0,0,0,.35);pointer-events:none}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom));background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;z-index:60;max-width:90vw;font-size:.92rem;box-shadow:0 6px 20px rgba(0,0,0,.25)}
 .demo{background:var(--warn-soft);color:var(--warn);text-align:center;font-size:.8rem;padding:4px}
+.offbar{background:var(--danger-soft);color:var(--danger);text-align:center;font-size:.85rem;padding:6px 10px;position:sticky;top:0;z-index:30}
+.pend{max-width:560px;margin:0 auto;padding:12px 16px 0}
+.pend .box{background:var(--warn-soft);color:var(--warn);border-radius:12px;padding:10px 12px;font-size:.92rem}
+.pend .top{display:flex;justify-content:space-between;align-items:center;gap:8px;font-weight:600}
+.pend .pi{display:flex;justify-content:space-between;gap:8px;align-items:center;padding:6px 0;border-top:1px solid var(--line);font-size:.86rem}
+.pend .pi .e{color:var(--danger)}
 .spin{display:inline-block;width:16px;height:16px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:r .7s linear infinite;vertical-align:-3px}
 @keyframes r{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
 <div id="demoBar" class="demo hidden">MODO DEMO · datos de prueba, no se guarda nada</div>
+<div id="offBar" class="offbar hidden" role="status">📵 Sin conexión · lo que registres se guarda en el móvil y se envía solo al volver la señal</div>
 
 <!-- LOGIN -->
 <main id="vLogin" class="wrap hidden">
@@ -101,60 +142,46 @@ nav.tabs button[aria-selected=true]{color:var(--accent);box-shadow:inset 0 3px 0
   <form id="fLogin" class="card stack" autocomplete="off">
     <div><label for="selEmp">Empleado</label><select id="selEmp" required><option value="">Cargando…</option></select></div>
     <div><label for="inPin">PIN</label><input id="inPin" class="pin" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="8" autocomplete="off" required></div>
+    <label class="check"><input id="inKeep" type="checkbox"> Mantener la sesión en este móvil</label>
     <div id="loginErr" class="err hidden" role="alert"></div>
     <button id="btnLogin" class="btn primary block" type="submit">Entrar</button>
   </form>
-  <p class="muted" style="text-align:center;margin-top:14px">Versión <span class="ver"></span></p>
+  <p class="muted" style="text-align:center;margin-top:14px">Versión <span class="ver"></span><span class="installHint"></span></p>
 </main>
 
 <!-- APP -->
 <div id="vApp" class="hidden">
+  <div id="pendBar" class="pend hidden"></div>
+
   <section id="tRetirar" class="wrap">
     <header class="top">
       <div class="brand"><div class="logo">A</div><h1>Retirar material</h1></div>
       <div class="who"><span class="whoName"></span><br><a href="#" class="btnLogout">Salir</a></div>
     </header>
+    <div id="pickR" class="stack"></div>
+    <p class="muted" style="text-align:center;margin-top:18px">Versión <span class="ver"></span><span class="installHint"></span></p>
+  </section>
 
-    <div class="stack">
-      <div class="card stack">
-        <div class="row">
-          <input id="q" class="grow" type="search" placeholder="Buscar o escribir código…" autocomplete="off" enterkeyhint="search">
-          <button id="btnScan" class="btn primary" type="button" aria-label="Escanear etiqueta">📷 Escanear</button>
-        </div>
-        <div id="prodList" role="list"></div>
-        <div id="prodMsg" class="muted"></div>
-      </div>
-
-      <div class="card" id="cartCard">
-        <h2>Tu retirada <span id="cartCount" class="badge hidden"></span></h2>
-        <div id="cart"></div>
-        <div id="doneMsg" class="hidden" role="status"></div>
-        <div id="cartEmpty" class="muted">Escanea una etiqueta o toca un artículo para añadirlo.</div>
-        <div id="cartForm" class="stack hidden" style="margin-top:12px">
-          <datalist id="destinos"></datalist>
-          <div>
-            <label for="nota">Nota (opcional)</label>
-            <input id="nota" type="text" maxlength="200" autocomplete="off">
-          </div>
-          <div id="sendMsg"></div>
-          <button id="btnSend" class="btn primary block" type="button">Confirmar retirada</button>
-        </div>
-      </div>
-    </div>
-    <p class="muted" style="text-align:center;margin-top:18px">Versión <span class="ver"></span></p>
+  <section id="tRecibir" class="wrap hidden">
+    <header class="top">
+      <div class="brand"><div class="logo">A</div><h1>Recibir mercancía</h1></div>
+      <div class="who"><span class="whoName"></span><br><a href="#" class="btnLogout">Salir</a></div>
+    </header>
+    <div id="pickE" class="stack"></div>
   </section>
 
   <section id="tHistorial" class="wrap hidden">
     <header class="top">
-      <div class="brand"><div class="logo">A</div><h1 id="histTitle">Mis retiradas</h1></div>
+      <div class="brand"><div class="logo">A</div><h1 id="histTitle">Mis movimientos</h1></div>
       <div class="who"><span class="whoName"></span><br><a href="#" class="btnLogout">Salir</a></div>
     </header>
     <div class="stack">
       <div id="adminTools" class="card stack hidden">
         <div class="row">
           <select id="fEmp" class="grow" aria-label="Filtrar por empleado"><option value="">Todos los empleados</option></select>
-          <input id="fText" class="grow" type="search" placeholder="Producto o destino…" aria-label="Buscar">
+          <select id="fTipo" class="grow" aria-label="Tipo de movimiento"><option value="">Retiradas y entradas</option><option value="salida">Solo retiradas</option><option value="entrada">Solo entradas</option></select>
         </div>
+        <input id="fText" type="search" placeholder="Producto o destino…" aria-label="Buscar">
         <div class="row">
           <div class="grow"><label for="fFrom">Desde</label><input id="fFrom" type="date"></div>
           <div class="grow"><label for="fTo">Hasta</label><input id="fTo" type="date"></div>
@@ -164,14 +191,66 @@ nav.tabs button[aria-selected=true]{color:var(--accent);box-shadow:inset 0 3px 0
       <div class="card">
         <div id="histSummary" class="muted" style="margin-bottom:6px"></div>
         <div id="hist"></div>
+        <button id="btnHistMore" class="btn block small hidden" type="button" style="margin-top:10px">Mostrar más</button>
       </div>
       <button id="btnReload" class="btn block" type="button">Actualizar</button>
     </div>
   </section>
 
+  <section id="tPanel" class="wrap hidden">
+    <header class="top">
+      <div class="brand"><div class="logo">A</div><h1>Panel</h1></div>
+      <div class="who"><span class="whoName"></span><br><a href="#" class="btnLogout">Salir</a></div>
+    </header>
+    <div class="stack">
+      <div class="seg" role="tablist">
+        <button id="pgStock" class="chip" type="button" aria-pressed="true">Stock</button>
+        <button id="pgApto" class="chip" type="button" aria-pressed="false">Apartamentos</button>
+      </div>
+
+      <div id="pnStock" class="stack">
+        <div class="card stack">
+          <div class="seg">
+            <button class="chip" type="button" data-pm="cero" aria-pressed="true">Agotados</button>
+            <button class="chip" type="button" data-pm="bajo" aria-pressed="false">Quedan pocos</button>
+            <button class="chip" type="button" data-pm="todo" aria-pressed="false">Todo</button>
+          </div>
+          <div class="row">
+            <div class="grow"><label for="pMin">«Pocos» = hasta</label><input id="pMin" type="number" inputmode="numeric" min="1" max="999" value="2"></div>
+            <div class="grow"><label for="pCat">Categoría</label><select id="pCat"></select></div>
+          </div>
+          <input id="pText" type="search" placeholder="Buscar producto o código…" aria-label="Buscar en el stock">
+          <div id="pSum" class="muted"></div>
+        </div>
+        <div class="card">
+          <div id="pList"></div>
+          <button id="pMore" class="btn block small hidden" type="button" style="margin-top:10px">Mostrar más</button>
+        </div>
+        <button id="pCsv" class="btn block" type="button">⬇ Descargar esta lista (CSV)</button>
+        <div id="pAlm" class="muted"></div>
+      </div>
+
+      <div id="pnApto" class="stack hidden">
+        <div class="card stack">
+          <input id="aText" type="search" placeholder="Buscar apartamento…" aria-label="Buscar apartamento">
+          <div class="row">
+            <div class="grow"><label for="aFrom">Desde</label><input id="aFrom" type="date"></div>
+            <div class="grow"><label for="aTo">Hasta</label><input id="aTo" type="date"></div>
+          </div>
+          <div id="aSum" class="muted"></div>
+        </div>
+        <div class="card"><div id="aList"></div>
+          <button id="aMore" class="btn block small hidden" type="button" style="margin-top:10px">Mostrar más</button></div>
+      </div>
+      <button id="btnPanelReload" class="btn block" type="button">Actualizar</button>
+    </div>
+  </section>
+
   <nav class="tabs" role="tablist">
-    <button role="tab" id="tabR" aria-selected="true">Retirar <span id="tabCount" class="badge hidden"></span></button>
+    <button role="tab" id="tabR" aria-selected="true">Retirar <span id="tabCountR" class="badge hidden"></span></button>
+    <button role="tab" id="tabE" class="hidden" aria-selected="false">Recibir <span id="tabCountE" class="badge hidden"></span></button>
     <button role="tab" id="tabH" aria-selected="false">Historial</button>
+    <button role="tab" id="tabP" class="hidden" aria-selected="false">Panel</button>
   </nav>
 </div>
 
@@ -185,8 +264,8 @@ nav.tabs button[aria-selected=true]{color:var(--accent);box-shadow:inset 0 3px 0
     <button id="btnScanClose" class="btn" type="button">Cerrar</button>
   </div>
 </div>
+<datalist id="destinos"></datalist>
 <div id="toast" class="toast hidden" role="status"></div>
-
 <script>
 'use strict';
 // ====== CONFIGURACIÓN ======
@@ -195,11 +274,14 @@ const EXTRA_DESTINOS = ['Almacén central', 'Oficina', 'Lavandería'];
 const DESTINOS = ["1.C.Campos_9_3I", "1.C.San-Bartolome_10_3", "1.C.San-Bartolome_10_4", "1.C.San-Bartolome_10_Bajo", "1.Oria_57_bajo_C", "1.c.campos_9_3D_1", "1.c.campos_9_3D_2", "Agustin_montes_7_A", "Agustin_montes_7_B", "Alcántara_2_2_D", "Allende_256_1D", "Allende_256_2", "Alvarez_4_1", "Andalucia_11_3A", "Andalucia_11_3B", "Andalucia_11_3C", "Andalucia_11_3D", "Arroyo_Angeles_A", "Arroyo_Angeles_B", "Av_Pintor_Sorolla_54_1_C", "Avda_Manuel_A_H_22_5_2", "Brasil_12_A", "Brasil_12_B", "Brasil_12_C", "Calderon_3_3b_Carmen", "Camino_Gibralfaro_7_7_4", "Capitan_huelin_19", "Capitan_huelin_21", "Capu_13_1", "Capu_13_3", "Capu_13_4", "Carreteria_92_2E_Gisela", "Carril_Contreras_A", "Carril_Contreras_B", "Carril_Contreras_C", "Cenacheros_34_1", "Cenacheros_34_1-2", "Cenacheros_34_2", "Cenacheros_34_2-2", "Clemens_11_1_A", "Clemens_11_1_B", "Clemens_11_1_C", "Clemens_11_Bajo", "Clemens_8_1", "Clemens_8_Bajo", "Comandante_14_9C", "Comedias_1_3", "Comedias_1_4", "Comico_riquelme_6_A", "Comico_riquelme_6_B", "Compas_Victoria_2_2-I", "Coto_doñana_1B", "Coto_doñana_2B", "Coto_doñana_3A", "Coto_doñana_3B", "Coto_doñana_Bajo", "Coto_doñana_atico", "Duque_Rivas_10_3H", "Duque_Rivas_10_3H-2", "Duque_Rivas_10_4-I", "Duque_Rivas_10_4-I-2", "Echeverria_13_1-2", "Faro_1_3_C", "Fernandez_Shaw_45", "Fernandez_Shaw_49", "Fragata_9_F3_studio", "Fragata_9_F4_A", "Gazules_7_2-Dorm_Ala_A", "Gazules_7_2-Dorm_Ala_C", "Gazules_7_2Dorm_Bajo_B", "Gazules_7_3Dorm_Bajo_A", "Gazules_7_studio", "General_Narvaez_11", "Gevora_2_5-2", "Gomez-Ocaña_5_1", "Gomez-Ocaña_5_2", "Gomez-Ocaña_5_3", "Gomez-Ocaña_5_4", "Gomez-Ocaña_5_5", "Gomez-Ocaña_5_6", "Gomez-Pallete_7_4-3", "Granada_32_2A", "Granada_32_2B", "Granada_52_1", "Granada_52_2", "Huerta-Obispo_22_1D-2", "Infantes_2_2", "Jabega_57_1-A", "Jabega_57_1-B", "Jabega_57_Bajo_A", "Juan_de_Herrera_44_B", "Juan_de_Padilla_11_1_D", "La_Union_1_1_E", "La_colina_164", "Leopoldo_Alas_Clarín_4", "Letmalaga_Av_Julio_iglesi", "Letplanet Jupiter", "Louis_Pasteur_21", "Madre-de-Dios_24_1", "Malasaña_5_6_C", "Marcos_Obregón_7_8-4", "Margarita_Xirgu_4", "Marques_Guadiaro_7", "Martiricos_30_2H", "Martiricos_40_24L", "Martiricos_40_24L_Parking", "Matias_Rubio_13_1", "Matias_Rubio_13_2", "Matias_Rubio_13_3", "Matias_Rubio_13_4", "Mauricio_Moro_A", "Mauricio_Moro_B", "Mauricio_Moro_C", "Menita_23_Bajo", "Ollerías_21", "Orfila_12_4_4", "Pacifico_18Parking3_-2_74", "Pacifico_18_3-7C", "Pacifico_Playa_19_2J", "Pacifico_Playa_19_2J-2", "Pepote_49", "Perez_Escrich_1", "Perez_Escrich_Bajo", "Pintor_Rosales_1", "Pintor_Rosales_2", "Pintor_Rosales_3", "Pintor_Rosales_4", "Pintor_Rosales_5", "Pintor_Rosales_6", "Pintor_Rosales_7", "Pio_XII_Hab0", "Pio_XII_Hab0_Cama1", "Pio_XII_Hab0_Cama2", "Pio_XII_Hab1", "Pio_XII_Hab10", "Pio_XII_Hab11", "Pio_XII_Hab2", "Pio_XII_Hab3", "Pio_XII_Hab4", "Pio_XII_Hab5", "Pio_XII_Hab5_Cama1", "Pio_XII_Hab5_Cama2", "Pio_XII_Hab6", "Pio_XII_Hab7", "Pio_XII_Hab8", "Pio_XII_Hab8_Cama1", "Pio_XII_Hab8_Cama2", "Pio_XII_Hab9", "Pio_XII_Studio_1", "Pio_XII_Studio_2", "Playa_Virginia_11", "Playa_park_13_Confort", "Playa_park_13_Parking", "Playa_park_13_Premium", "Playa_park_13_Standar", "Playa_park_13_Superior", "Plaza-del-Teatro-Tejon_25", "Plaza-del-Teatro-tParking", "Plaza_toros_vieja_24_4ª_A", "Plaza_toros_vieja_6_1A", "Pozos_Dulces_14_B", "Pozos_Dulces_14_C", "Pozos_Dulces_14_a", "Pozos_Dulces_14_d", "Princesa_Huelin_19-A", "Princesa_Huelin_19-B", "Princesa_Huelin_19-STUDIO", "Puerto_7_1", "Puerto_7_2", "Puerto_7_3", "Puerto_7_4", "Puerto_7_5", "Puerto_7_5-209_Parking", "Puerto_7_5-210_Parking", "Reding_11_7_X'", "Reding_11_7_X_PARKING_85", "Rodriguez_Berlanga_1_5_E", "Ronda_2_infantes_49", "Salitre_26_A", "Salitre_26_B", "San_Andres_21_4A", "San_Quintin", "San_Quintin_58_A", "San_Quintin_58_B", "San_Quintin_58_C", "San_Telmo_16_1-C", "San_Telmo_Bajo_D", "Sancha_10-12_1_A2", "Souviron_4_2-I", "Victoria_16_1B_EXT-A", "Victoria_16_1B_INT_B", "Vázquez_Claver_17_Atico", "Vázquez_Claver_17_drcha", "Vázquez_Claver_17_izq", "empedrada_St", "fernando_prado_1_3_E", "fuengirola_Cam_Santiago67"];
 // ===========================
 
-const VERSION = 'v3 · escáner más rápido · lector USB/Bluetooth';
+const VERSION = 'v4 · entradas · panel · sin cobertura';
 document.querySelectorAll('.ver').forEach(n => n.textContent = VERSION);
 const DEMO = new URLSearchParams(location.search).has('demo');
 const $ = id => document.getElementById(id);
-const S = { lastDestino: '', emp: '', pin: '', nombre: '', admin: false, productos: [], stock: {}, cart: [], hist: [], busy: false };
+const S = { emp: '', pin: '', nombre: '', admin: false, puedeRecibir: false, productos: [], stock: {}, hist: [], histLimit: 60,
+  tab: 'r', busy: false, lastDestino: '', freq: [], panel: null, panelPg: 'stock', pm: 'cero', pLimit: 60, aLimit: 40 };
+const CATS = [['', 'Todo'], ['LIM', 'Limpieza'], ['MCO', 'Consumibles'], ['MHE', 'Herramientas'], ['MMO', 'Mobiliario'], ['LP', 'Lencería']];
+const catDe = p => String(p.sku || '').split('-')[0].toUpperCase();
 
 // ---------- utilidades ----------
 function el(tag, props, ...kids) {
@@ -221,17 +303,23 @@ function fmtFecha(iso) {
   const d = new Date(iso); if (isNaN(d)) return String(iso || '');
   return d.toLocaleString('es-ES', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' });
 }
+const lsGet = (k, def) => { try { const v = localStorage.getItem(k); return v == null ? def : JSON.parse(v); } catch (e) { return def; } };
+const lsSet = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
+const lsDel = k => { try { localStorage.removeItem(k); } catch (e) {} };
+const sum = (arr, f) => arr.reduce((a, x) => a + (Number(f(x)) || 0), 0);
 
 // ---------- API ----------
 async function api(action, extra) {
   if (DEMO) return demoApi(action, extra || {});
   const body = JSON.stringify(Object.assign({ action, emp: S.emp, pin: S.pin }, extra));
-  let res;
+  const sinRed = { ok: false, offline: true, error: 'Sin conexión con el servidor. Revisa la cobertura e inténtalo de nuevo.' };
+  const ctl = new AbortController(); const to = setTimeout(() => ctl.abort(), 25000);
+  let res, txt;
   try {
     // text/plain evita la petición previa (preflight) de CORS
-    res = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body });
-  } catch (e) { return { ok: false, error: 'Sin conexión con el servidor. Revisa la cobertura e inténtalo de nuevo.' }; }
-  const txt = await res.text();
+    res = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body, signal: ctl.signal });
+    txt = await res.text();
+  } catch (e) { return sinRed; } finally { clearTimeout(to); }
   try { return JSON.parse(txt); } catch (e) { return { ok: false, error: 'Respuesta inesperada del servidor (' + res.status + ').' }; }
 }
 
@@ -240,22 +328,29 @@ function show(view) {
   $('vLogin').classList.toggle('hidden', view !== 'login');
   $('vApp').classList.toggle('hidden', view !== 'app');
 }
+const TABS = { r: ['tRetirar', 'tabR'], e: ['tRecibir', 'tabE'], h: ['tHistorial', 'tabH'], p: ['tPanel', 'tabP'] };
 function tab(name) {
-  const r = name === 'r';
-  $('tRetirar').classList.toggle('hidden', !r); $('tHistorial').classList.toggle('hidden', r);
-  $('tabR').setAttribute('aria-selected', r); $('tabH').setAttribute('aria-selected', !r);
-  if (!r) loadHist();
+  if ((name === 'e' && !S.puedeRecibir) || (name === 'p' && !S.admin)) name = 'r';
+  S.tab = name;
+  for (const [k, [sec, btn]] of Object.entries(TABS)) {
+    $(sec).classList.toggle('hidden', k !== name); $(btn).setAttribute('aria-selected', k === name);
+  }
+  if (name === 'h') loadHist();
+  if (name === 'p') { if (!S.panel) loadPanel(); else renderPanel(); if (S.panelPg === 'apto' && !S.hist.length) loadHist(true); }
   window.scrollTo(0, 0);
 }
-$('tabR').onclick = () => tab('r'); $('tabH').onclick = () => tab('h');
+for (const k of Object.keys(TABS)) $(TABS[k][1]).onclick = () => tab(k);
 
-// ---------- login ----------
+// ---------- sesión ----------
 async function loadEmpleados() {
+  const cache = lsGet('alm_emps', null);
   const r = await api('empleados');
   const sel = $('selEmp'); sel.textContent = '';
-  if (!r.ok) { sel.append(el('option', { value: '', text: 'No se pudo cargar' })); showLoginErr(r.error); return; }
+  let lista = r.ok ? r.empleados : null;
+  if (lista) lsSet('alm_emps', lista); else if (cache) lista = cache;
+  if (!lista) { sel.append(el('option', { value: '', text: 'No se pudo cargar' })); showLoginErr(r.error); return; }
   sel.append(el('option', { value: '', text: 'Elige tu nombre…' }));
-  for (const e of r.empleados) sel.append(el('option', { value: e.id, text: e.nombre }));
+  for (const e of lista) sel.append(el('option', { value: e.id, text: e.nombre }));
 }
 function showLoginErr(msg) { const b = $('loginErr'); b.textContent = msg || ''; b.classList.toggle('hidden', !msg); }
 $('fLogin').addEventListener('submit', async ev => {
@@ -265,164 +360,343 @@ $('fLogin').addEventListener('submit', async ev => {
   const r = await api('login');
   btn.disabled = false; btn.textContent = 'Entrar';
   if (!r.ok) { showLoginErr(r.error || 'No se pudo entrar.'); $('inPin').value = ''; return; }
-  S.nombre = r.nombre; S.admin = !!r.admin;
-  try { sessionStorage.setItem('alm', JSON.stringify({ emp: S.emp, pin: S.pin, nombre: S.nombre, admin: S.admin })); } catch (e) {}
+  S.nombre = r.nombre; S.admin = !!r.admin; S.puedeRecibir = !!r.puede_recibir;
+  const ses = { emp: S.emp, pin: S.pin, nombre: S.nombre, admin: S.admin, puedeRecibir: S.puedeRecibir };
+  try { sessionStorage.setItem('alm', JSON.stringify(ses)); } catch (e) {}
+  if ($('inKeep').checked) lsSet('alm_ses', ses); else lsDel('alm_ses');
   $('inPin').value = '';
   await enterApp();
 });
 function logout() {
   try { sessionStorage.removeItem('alm'); } catch (e) {}
-  Object.assign(S, { lastDestino: '', emp: '', pin: '', nombre: '', admin: false, cart: [], stock: {}, hist: [] });
-  renderCart(); show('login'); loadEmpleados();
+  lsDel('alm_ses');
+  Object.assign(S, { emp: '', pin: '', nombre: '', admin: false, puedeRecibir: false, stock: {}, hist: [], freq: [], panel: null, lastDestino: '' });
+  Pr.cart = []; Pe.cart = []; Pr.reset(); Pe.reset(); renderPending();
+  show('login'); loadEmpleados();
 }
-document.querySelectorAll('.btnLogout').forEach(a => a.addEventListener('click', e => { e.preventDefault(); logout(); }));
+document.querySelectorAll('.btnLogout').forEach(a => a.addEventListener('click', e => {
+  e.preventDefault();
+  const n = qGet().filter(x => x.emp === S.emp).length;
+  if (n && !confirm(`Tienes ${n} movimiento(s) sin enviar. Si sales ahora se quedan guardados y se enviarán cuando vuelvas a entrar con tu usuario. ¿Salir?`)) return;
+  logout();
+}));
 
 async function enterApp() {
   document.querySelectorAll('.whoName').forEach(n => n.textContent = S.nombre);
-  $('histTitle').textContent = S.admin ? 'Todas las retiradas' : 'Mis retiradas';
+  $('histTitle').textContent = S.admin ? 'Todos los movimientos' : 'Mis movimientos';
   $('adminTools').classList.toggle('hidden', !S.admin);
+  $('tabE').classList.toggle('hidden', !S.puedeRecibir);
+  $('tabP').classList.toggle('hidden', !S.admin);
   const dl = $('destinos'); dl.textContent = '';
   const nombres = [...EXTRA_DESTINOS, ...DESTINOS.map(d => d.replace(/_/g, ' '))];
   for (const n of [...new Set(nombres)]) dl.append(el('option', { value: n }));
   show('app'); tab('r');
-  $('prodMsg').innerHTML = '<span class="spin"></span> Cargando catálogo…';
+  S.freqCount = lsGet('alm_fc_' + S.emp, {});
+  const cache = lsGet('alm_cat', null);
+  if (cache && cache.productos && cache.productos.length) setProductos(cache.productos);
+  else Pr.msg('<span class="spin"></span> Cargando catálogo…');
+  renderPending();
   const r = await api('productos');
-  if (!r.ok) { $('prodMsg').textContent = r.error || 'No se pudo cargar el catálogo.'; return; }
-  S.productos = r.productos; $('prodMsg').textContent = '';
-  renderProds();
+  if (r.ok) { setProductos(r.productos); lsSet('alm_cat', { t: Date.now(), productos: r.productos }); }
+  else if (!S.productos.length) { Pr.msg(r.error || 'No se pudo cargar el catálogo.', true); }
+  else if (r.offline) toast('Sin conexión: uso el catálogo guardado en el móvil', 3200);
+  flushQueue();
+  cargarFrecuentes();
+}
+function setProductos(ps) {
+  S.productos = ps; S.byId = {}; for (const p of ps) S.byId[p.id] = p;
+  Pr.renderProds(); Pe.renderProds(); fillPanelCats();
 }
 
 // ---------- catálogo ----------
-function buscar(q) {
-  const n = norm(q).trim(); if (!n) return S.productos;
-  const palabras = n.split(/\s+/);
-  return S.productos.filter(p => { const h = norm(p.name + ' ' + p.sku + ' ' + p.barcode); return palabras.every(w => h.includes(w)); });
+function buscar(q, cat) {
+  const n = norm(q).trim(); const palabras = n ? n.split(/\s+/) : [];
+  return S.productos.filter(p => (!cat || catDe(p) === cat) &&
+    (!palabras.length || (h => palabras.every(w => h.includes(w)))(norm(p.name + ' ' + p.sku + ' ' + p.barcode))));
 }
-function renderProds() {
-  const list = $('prodList'); list.textContent = '';
-  const res = buscar($('q').value);
-  for (const p of res.slice(0, 40)) {
-    list.append(el('div', { class: 'prod', role: 'listitem', onclick: () => addToCart(p) },
-      el('div', { class: 'n' }, el('b', { text: p.name }), el('span', { text: p.sku })),
-      el('div', { class: 'plus', 'aria-hidden': 'true', text: '+' })));
-  }
-  $('prodMsg').textContent = res.length === 0 ? 'Ningún artículo coincide.' : (res.length > 40 ? `Mostrando 40 de ${res.length}. Afina la búsqueda.` : '');
-}
-$('q').addEventListener('input', renderProds);
-$('q').addEventListener('keydown', e => {
-  if (e.key !== 'Enter') return;
-  e.preventDefault();
-  const code = $('q').value.trim(); if (!code) return;
-  const exact = porCodigo(code);
-  if (exact) { addToCart(exact); $('q').value = ''; renderProds(); }
-  else { const r = buscar(code); if (r.length === 1) { addToCart(r[0]); $('q').value = ''; renderProds(); } else toast('Código no encontrado'); }
-});
 function porCodigo(c) {
   const n = String(c).trim().toLowerCase();
-  return S.productos.find(p => p.barcode.toLowerCase() === n || p.sku.toLowerCase() === n);
-}
-
-// ---------- carrito ----------
-function addToCart(p) {
-  const ya = [...S.cart].reverse().find(i => i.id === p.id);
-  if (ya) { ya.cantidad = (Number(ya.cantidad) || 0) + 1; ya.msg = null; toast(`${p.name}: ${ya.cantidad}`); }
-  else { S.cart.push({ id: p.id, sku: p.sku, name: p.name, cantidad: 1, destino: S.lastDestino || '', msg: null }); toast('Añadido: ' + p.name); }
-  if (S.stock[p.id] === undefined) consultarStock(p.id);
-  renderCart();
+  return S.productos.find(p => String(p.barcode).toLowerCase() === n || String(p.sku).toLowerCase() === n);
 }
 async function consultarStock(id) {
   const r = await api('stock', { product_id: id });
-  if (r.ok) { S.stock[id] = r.disponible; renderCart(); }
-}
-function renderCart() {
-  const box = $('cart'); box.textContent = '';
-  const n = S.cart.reduce((a, i) => a + (Number(i.cantidad) || 0), 0);
-  for (const i of S.cart) {
-    const disp = S.stock[i.id];
-    const inp = el('input', { type: 'number', inputmode: 'numeric', min: '1', max: '9999', value: String(i.cantidad), 'aria-label': 'Cantidad de ' + i.name });
-    inp.addEventListener('input', () => { i.cantidad = inp.value === '' ? '' : Math.max(0, Math.floor(Number(inp.value))); i.msg = null; refreshBadges(); });
-    inp.addEventListener('blur', () => { if (!i.cantidad) { i.cantidad = 1; } renderCart(); });
-    const stepper = el('div', { class: 'stepper' },
-      el('button', { type: 'button', 'aria-label': 'Menos', onclick: () => { i.cantidad = Math.max(1, (Number(i.cantidad) || 1) - 1); i.msg = null; renderCart(); } }, '−'),
-      inp,
-      el('button', { type: 'button', 'aria-label': 'Más', onclick: () => { i.cantidad = (Number(i.cantidad) || 0) + 1; i.msg = null; renderCart(); } }, '+'),
-      el('button', { type: 'button', class: 'btn small', onclick: () => { i.cantidad = (Number(i.cantidad) || 0) + 10; i.msg = null; renderCart(); } }, '+10'));
-    const dest = el('input', { type: 'text', list: 'destinos', maxlength: '80', autocomplete: 'off', placeholder: '¿A dónde va? (apartamento o lugar)', value: i.destino || '', 'aria-label': 'Destino de ' + i.name, style: 'margin-top:8px' });
-    dest.addEventListener('input', () => { i.destino = dest.value; S.lastDestino = dest.value; i.msg = null; });
-    const otro = el('button', { type: 'button', class: 'btn small', style: 'margin-top:8px', onclick: () => { S.cart.splice(S.cart.indexOf(i) + 1, 0, { id: i.id, sku: i.sku, name: i.name, cantidad: 1, destino: '', msg: null }); renderCart(); } }, '＋ Mismo artículo, otro destino');
-    const item = el('div', { class: 'item' },
-      el('div', { class: 't' }, el('b', { text: i.name }), el('button', { class: 'x', type: 'button', 'aria-label': 'Quitar', onclick: () => { S.cart = S.cart.filter(x => x !== i); renderCart(); } }, '✕')),
-      el('div', { class: 's', text: i.sku + (disp !== undefined ? ` · disponibles: ${disp}` : '') }),
-      stepper, dest, otro);
-    if (!i.msg && disp !== undefined && Number(i.cantidad) > disp) item.append(el('div', { class: 'line-err', text: `Solo hay ${disp} disponibles.` }));
-    if (i.msg) item.append(el('div', { class: i.msg.ok ? 'line-ok' : 'line-err', text: i.msg.text }));
-    box.append(item);
-  }
-  $('cartEmpty').classList.toggle('hidden', S.cart.length > 0);
-  $('cartForm').classList.toggle('hidden', S.cart.length === 0);
-  refreshBadges(n);
-}
-function refreshBadges(n) {
-  if (n === undefined) n = S.cart.reduce((a, i) => a + (Number(i.cantidad) || 0), 0);
-  for (const b of [$('cartCount'), $('tabCount')]) { b.textContent = n; b.classList.toggle('hidden', n === 0); }
-  $('btnSend').textContent = n ? `Confirmar retirada (${n} uds)` : 'Confirmar retirada';
+  if (r.ok) { S.stock[id] = r.disponible; Pr.renderCart(); Pe.renderCart(); }
 }
 
-// ---------- enviar retirada ----------
-$('btnSend').addEventListener('click', async () => {
-  if (S.busy) return;
-  const box = $('sendMsg'); box.textContent = ''; box.className = ''; $('doneMsg').classList.add('hidden');
-  const nota = $('nota').value.trim();
-  for (const i of S.cart) {
-    if (!(i.destino || '').trim()) { box.className = 'err'; box.textContent = `Indica a dónde va "${i.name}".`; return; }
-    const c = Number(i.cantidad);
-    if (!Number.isInteger(c) || c < 1) { box.className = 'err'; box.textContent = `Revisa la cantidad de "${i.name}".`; return; }
+// ---------- frecuentes (lo que más saca cada empleado) ----------
+function cargarFrecuentes() {
+  const cnt = {};
+  for (const f of S.hist) { if (f.tipo === 'entrada' || (S.admin && f.empleado !== S.nombre)) continue; cnt[f.sku] = (cnt[f.sku] || 0) + 1; }
+  if (Object.keys(cnt).length) { S.freqCount = cnt; lsSet('alm_fc_' + S.emp, cnt); }
+  calcFreq();
+  if (!S.hist.length && !DEMO) api('historial').then(r => { if (r.ok) { S.hist = r.filas; cargarFrecuentes(); } });
+}
+function calcFreq() {
+  const c = S.freqCount || {};
+  S.freq = Object.keys(c).sort((a, b) => c[b] - c[a]).map(sku => S.productos.find(p => p.sku === sku)).filter(Boolean).slice(0, 8);
+  Pr.renderProds();
+}
+function bumpFreq(sku) {
+  S.freqCount = S.freqCount || {}; S.freqCount[sku] = (S.freqCount[sku] || 0) + 1;
+  lsSet('alm_fc_' + S.emp, S.freqCount); calcFreq();
+}
+
+// ---------- selector de artículos + carrito (Retirar y Recibir) ----------
+function Picker(mode, root) {
+  const rec = mode === 'recibir', P = { mode, rec, cart: [], cat: '', limit: 40, focusLast: false };
+  root.innerHTML = `
+    <div id="done_${mode}" class="hidden" role="status"></div>
+    <div class="card stack">
+      <div class="row">
+        <input id="q_${mode}" class="grow" type="search" placeholder="Buscar o código…" autocomplete="off" enterkeyhint="search" aria-label="Buscar artículo">
+        <button id="scan_${mode}" class="btn primary" type="button" aria-label="Escanear etiqueta">📷 Escanear</button>
+      </div>
+      <div id="chips_${mode}" class="chips" role="group" aria-label="Categoría"></div>
+      <div id="freq_${mode}" class="freq hidden"></div>
+      <div id="empty_${mode}" class="muted">Escanea la etiqueta o toca un artículo para añadirlo.</div>
+    </div>
+    <div id="cartcard_${mode}" class="card hidden">
+      <h2>${rec ? 'Entrada de mercancía' : 'Tu retirada'} <span id="count_${mode}" class="badge hidden"></span></h2>
+      <div id="cart_${mode}"></div>
+      <div class="stack" style="margin-top:12px">
+        <div><label for="nota_${mode}">${rec ? 'Proveedor / albarán (opcional)' : 'Nota (opcional)'}</label>
+          <input id="nota_${mode}" type="text" maxlength="200" autocomplete="off"></div>
+        <div id="smsg_${mode}"></div>
+        <button id="send_${mode}" class="btn primary block" type="button">${rec ? 'Registrar entrada' : 'Confirmar retirada'}</button>
+      </div>
+    </div>
+    <div class="card">
+      <div id="list_${mode}" role="list"></div>
+      <button id="more_${mode}" class="btn block small hidden" type="button">Mostrar más</button>
+      <div id="msg_${mode}" class="muted"></div>
+    </div>`;
+  const g = id => $(id + '_' + mode);
+  const q = g('q');
+
+  P.msg = (html, esError) => { const m = g('msg'); if (esError) { m.textContent = html; } else m.innerHTML = html; };
+  P.reset = () => { q.value = ''; P.cat = ''; P.limit = 40; g('nota').value = ''; g('done').classList.add('hidden'); g('smsg').textContent = ''; g('smsg').className = ''; P.renderProds(); P.renderCart(); };
+
+  P.renderChips = () => {
+    const box = g('chips'); box.textContent = '';
+    const cuenta = {}; for (const p of S.productos) cuenta[catDe(p)] = (cuenta[catDe(p)] || 0) + 1;
+    const visibles = CATS.filter(([k]) => !k || cuenta[k]);
+    box.classList.toggle('hidden', visibles.length < 3);
+    for (const [k, nombre] of visibles) {
+      box.append(el('button', { class: 'chip', type: 'button', 'aria-pressed': String(P.cat === k), onclick: () => { P.cat = k; P.limit = 40; P.renderProds(); } }, nombre));
+    }
+  };
+  P.renderProds = () => {
+    P.renderChips();
+    const list = g('list'); list.textContent = '';
+    const res = buscar(q.value, P.cat), mostrar = res.slice(0, P.limit);
+    for (const p of mostrar) {
+      list.append(el('div', { class: 'prod', role: 'listitem', onclick: () => P.addToCart(p) },
+        el('div', { class: 'n' }, el('b', { text: p.name }), el('span', { text: p.sku })),
+        el('div', { class: 'plus', 'aria-hidden': 'true', text: '+' })));
+    }
+    g('more').classList.toggle('hidden', res.length <= mostrar.length);
+    g('more').textContent = `Mostrar más (${res.length - mostrar.length})`;
+    g('msg').textContent = S.productos.length && res.length === 0 ? 'Ningún artículo coincide.' : '';
+    // frecuentes: solo al retirar, sin búsqueda ni categoría
+    const fr = g('freq'); fr.textContent = '';
+    const verFreq = !rec && !q.value.trim() && !P.cat && S.freq.length > 0;
+    fr.classList.toggle('hidden', !verFreq);
+    if (verFreq) {
+      fr.append(el('div', { class: 'lbl', text: 'Lo que más sacas' }));
+      const b = el('div', { class: 'btns' });
+      for (const p of S.freq) b.append(el('button', { class: 'chip', type: 'button', title: p.name, onclick: () => P.addToCart(p) }, '＋ ' + p.name));
+      fr.append(b);
+    }
+  };
+  g('more').addEventListener('click', () => { P.limit += 40; P.renderProds(); });
+  q.addEventListener('input', () => { P.limit = 40; P.renderProds(); });
+  q.addEventListener('keydown', e => {
+    if (e.key !== 'Enter') return;
+    e.preventDefault();
+    const code = q.value.trim(); if (!code) return;
+    const exact = porCodigo(code);
+    const hecho = p => { P.addToCart(p); q.value = ''; P.renderProds(); };
+    if (exact) hecho(exact);
+    else { const r = buscar(code, P.cat); if (r.length === 1) hecho(r[0]); else toast('Código no encontrado'); }
+  });
+  g('scan').addEventListener('click', () => openScan(p => P.addToCart(p)));
+  P.focus = () => q.focus();
+
+  P.addToCart = p => {
+    const ya = [...P.cart].reverse().find(i => i.id === p.id);
+    if (ya) { ya.cantidad = (Number(ya.cantidad) || 0) + 1; ya.msg = null; toast(`${p.name}: ${ya.cantidad}`); }
+    else { P.cart.push({ id: p.id, sku: p.sku, name: p.name, cantidad: 1, destino: rec ? '' : (S.lastDestino || ''), msg: null }); toast('Añadido: ' + p.name); }
+    if (S.stock[p.id] === undefined) consultarStock(p.id);
+    P.focusLast = rec;
+    P.renderCart();
+  };
+  P.renderCart = () => {
+    const box = g('cart'); box.textContent = '';
+    const n = sum(P.cart, i => i.cantidad);
+    for (const i of P.cart) {
+      const disp = S.stock[i.id];
+      const inp = el('input', { type: 'number', inputmode: 'numeric', min: '1', max: '9999', value: String(i.cantidad), 'aria-label': 'Cantidad de ' + i.name });
+      inp.addEventListener('input', () => { i.cantidad = inp.value === '' ? '' : Math.max(0, Math.floor(Number(inp.value))); i.msg = null; P.refreshBadges(); });
+      inp.addEventListener('blur', () => { if (!i.cantidad) { i.cantidad = 1; } P.renderCart(); });
+      i.inp = inp;
+      const stepper = el('div', { class: 'stepper' },
+        el('button', { type: 'button', 'aria-label': 'Menos', onclick: () => { i.cantidad = Math.max(1, (Number(i.cantidad) || 1) - 1); i.msg = null; P.renderCart(); } }, '−'),
+        inp,
+        el('button', { type: 'button', 'aria-label': 'Más', onclick: () => { i.cantidad = (Number(i.cantidad) || 0) + 1; i.msg = null; P.renderCart(); } }, '+'),
+        el('button', { type: 'button', class: 'btn small', onclick: () => { i.cantidad = (Number(i.cantidad) || 0) + 10; i.msg = null; P.renderCart(); } }, '+10'));
+      const kids = [
+        el('div', { class: 't' }, el('b', { text: i.name }), el('button', { class: 'x', type: 'button', 'aria-label': 'Quitar', onclick: () => { P.cart = P.cart.filter(x => x !== i); P.renderCart(); } }, '✕')),
+        el('div', { class: 's', text: i.sku + (disp !== undefined ? (rec ? ` · ahora hay: ${disp}` : ` · disponibles: ${disp}`) : '') }),
+        stepper];
+      if (!rec) {
+        const dest = el('input', { type: 'text', list: 'destinos', maxlength: '80', autocomplete: 'off', placeholder: '¿A dónde va? (apartamento o lugar)', value: i.destino || '', 'aria-label': 'Destino de ' + i.name, style: 'margin-top:8px' });
+        dest.addEventListener('input', () => { i.destino = dest.value; S.lastDestino = dest.value; i.msg = null; });
+        const otro = el('button', { type: 'button', class: 'btn small', style: 'margin-top:8px', onclick: () => { P.cart.splice(P.cart.indexOf(i) + 1, 0, { id: i.id, sku: i.sku, name: i.name, cantidad: 1, destino: '', msg: null }); P.renderCart(); } }, '＋ Mismo artículo, otro destino');
+        kids.push(dest, otro);
+      }
+      const item = el('div', { class: 'item' }, ...kids);
+      if (!rec && !i.msg && disp !== undefined && Number(i.cantidad) > disp) item.append(el('div', { class: 'line-err', text: `Solo hay ${disp} disponibles.` }));
+      if (i.msg) item.append(el('div', { class: i.msg.ok ? 'line-ok' : 'line-err', text: i.msg.text }));
+      box.append(item);
+    }
+    g('empty').classList.toggle('hidden', P.cart.length > 0);
+    g('cartcard').classList.toggle('hidden', P.cart.length === 0);
+    P.refreshBadges(n);
+    if (P.focusLast && P.cart.length) { const l = P.cart[P.cart.length - 1].inp; if (l) { try { l.focus(); l.select(); } catch (e) {} } }
+    P.focusLast = false;
+  };
+  P.refreshBadges = n => {
+    if (n === undefined) n = sum(P.cart, i => i.cantidad);
+    for (const b of [g('count'), $(rec ? 'tabCountE' : 'tabCountR')]) { b.textContent = n; b.classList.toggle('hidden', n === 0); }
+    g('send').textContent = rec ? (n ? `Registrar entrada (${n} uds)` : 'Registrar entrada') : (n ? `Confirmar retirada (${n} uds)` : 'Confirmar retirada');
+  };
+
+  g('send').addEventListener('click', async () => {
+    if (S.busy) return;
+    const box = g('smsg'); box.textContent = ''; box.className = ''; g('done').classList.add('hidden');
+    const nota = g('nota').value.trim();
+    for (const i of P.cart) {
+      if (!rec && !(i.destino || '').trim()) { box.className = 'err'; box.textContent = `Indica a dónde va "${i.name}".`; return; }
+      const c = Number(i.cantidad);
+      if (!Number.isInteger(c) || c < 1) { box.className = 'err'; box.textContent = `Revisa la cantidad de "${i.name}".`; return; }
+    }
+    S.busy = true; const btn = g('send'); btn.disabled = true; btn.innerHTML = '<span class="spin"></span> Registrando…';
+    let hechas = 0, fallos = 0, cola = 0, sinRed = false; const avisos = [];
+    for (const i of [...P.cart]) {
+      if (!i.request_id) i.request_id = uuid(); // mismo id si se reintenta: evita duplicados
+      const payload = { product_id: i.id, sku: i.sku, producto: i.name, cantidad: Number(i.cantidad), nota };
+      if (!rec) payload.destino = i.destino.trim();
+      const r = sinRed ? { offline: true } : await api(mode, Object.assign({ request_id: i.request_id }, payload));
+      if (r.ok || r.duplicado) {
+        hechas++; if (r.aviso) avisos.push(r.aviso);
+        P.cart = P.cart.filter(x => x !== i); delete S.stock[i.id];
+        if (!rec) bumpFreq(i.sku);
+      } else if (r.offline) {
+        sinRed = true; cola++;
+        qAdd({ id: i.request_id, mode, emp: S.emp, payload, fecha: new Date().toISOString(), name: i.name });
+        P.cart = P.cart.filter(x => x !== i);
+        if (!rec) bumpFreq(i.sku);
+      } else { fallos++; i.msg = { ok: false, text: r.error || 'No se pudo registrar.' }; if (typeof r.disponible === 'number') S.stock[i.id] = r.disponible; }
+    }
+    S.busy = false; btn.disabled = false;
+    P.renderCart(); renderPending();
+    if (hechas || cola) S.hist = [];   // el historial guardado ya no está al día
+    if (fallos === 0) {
+      g('nota').value = ''; if (!rec) S.lastDestino = '';
+      const d = g('done'); d.style.marginBottom = '10px';
+      const partes = [];
+      if (hechas) partes.push(avisos.length ? avisos[0] : `✓ ${rec ? 'Entrada registrada' : 'Retirada registrada'} (${hechas} ${hechas === 1 ? 'artículo' : 'artículos'}).`);
+      if (cola) partes.push(`📵 Sin cobertura: ${cola} ${cola === 1 ? 'artículo guardado' : 'artículos guardados'} en el móvil. Se enviará${cola === 1 ? '' : 'n'} solo${cola === 1 ? '' : 's'} al volver la señal.`);
+      d.className = (avisos.length || cola) ? 'warnbox' : 'okbox'; d.textContent = partes.join(' ');
+      clearTimeout(P.doneT); P.doneT = setTimeout(() => d.classList.add('hidden'), 8000);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      box.className = 'err';
+      box.textContent = (hechas || cola) ? `${hechas + cola} registrada(s), ${fallos} con error. Revisa los marcados en rojo.` : 'No se pudo registrar. Revisa los avisos en rojo.';
+    }
+  });
+  P.renderProds(); P.renderCart();
+  return P;
+}
+const Pr = Picker('retirar', $('pickR'));
+const Pe = Picker('recibir', $('pickE'));
+const pickerActivo = () => (S.tab === 'e' ? Pe : Pr);
+
+// ---------- cola de movimientos sin enviar (sin cobertura) ----------
+const QK = 'alm_q';
+const qGet = () => lsGet(QK, []);
+const qSet = a => lsSet(QK, a);
+function qAdd(x) { const a = qGet(); a.push(x); qSet(a); }
+let flushing = false;
+async function flushQueue() {
+  if (flushing || !S.emp) return;
+  if (!qGet().some(x => x.emp === S.emp && !x.error)) { renderPending(); return; }
+  flushing = true; renderPending();
+  let enviados = 0;
+  try {
+    for (const x of qGet().filter(x => x.emp === S.emp && !x.error)) {
+      const r = await api(x.mode, Object.assign({ request_id: x.id, fecha: x.fecha }, x.payload));
+      if (r.offline) break;
+      const a = qGet(), it = a.find(y => y.id === x.id); if (!it) continue;
+      if (r.ok || r.duplicado) { qSet(a.filter(y => y.id !== x.id)); enviados++; }
+      else { it.error = r.error || 'El servidor no aceptó este movimiento.'; qSet(a); }
+    }
+  } finally { flushing = false; }
+  if (enviados) { toast(`✓ ${enviados} pendiente(s) enviado(s)`, 3000); S.hist = []; S.panel = null; if (S.tab === 'h') loadHist(); }
+  renderPending();
+}
+function renderPending() {
+  const box = $('pendBar'), todos = qGet();
+  box.textContent = '';
+  if (!todos.length || !S.emp) { box.classList.add('hidden'); return; }
+  const mios = todos.filter(x => x.emp === S.emp), otros = todos.length - mios.length;
+  const enEspera = mios.filter(x => !x.error).length;
+  const b = el('div', { class: 'box' });
+  const txt = [];
+  if (mios.length) txt.push(`⏳ ${mios.length} movimiento(s) sin enviar`);
+  if (otros) txt.push(`${otros} de otro usuario`);
+  b.append(el('div', { class: 'top' }, el('span', { text: txt.join(' · ') }),
+    enEspera ? el('button', { class: 'btn small', type: 'button', onclick: () => { toast('Enviando…'); flushQueue(); } }, flushing ? 'Enviando…' : 'Enviar ahora') : null));
+  for (const x of mios) {
+    const fila = el('div', { class: 'pi' },
+      el('span', {}, `${x.mode === 'recibir' ? '＋' : '−'}${x.payload.cantidad} ${x.name}${x.mode === 'retirar' ? ' → ' + x.payload.destino : ''}`,
+        x.error ? el('div', { class: 'e', text: x.error }) : null),
+      el('span', { class: 'row' },
+        x.error ? el('button', { class: 'btn small', type: 'button', onclick: () => { const a = qGet(), it = a.find(y => y.id === x.id); if (it) { delete it.error; qSet(a); } flushQueue(); } }, 'Reintentar') : null,
+        el('button', { class: 'btn small', type: 'button', onclick: () => { if (confirm('¿Descartar este movimiento? No se registrará en Holded.')) { qSet(qGet().filter(y => y.id !== x.id)); renderPending(); } } }, 'Descartar')));
+    b.append(fila);
   }
-  S.busy = true; const btn = $('btnSend'); btn.disabled = true; btn.innerHTML = '<span class="spin"></span> Registrando…';
-  let hechas = 0, fallos = 0, avisos = [];
-  for (const i of [...S.cart]) {
-    if (!i.request_id) i.request_id = uuid(); // mismo id si se reintenta: evita duplicados
-    const r = await api('retirar', { product_id: i.id, sku: i.sku, producto: i.name, cantidad: Number(i.cantidad), destino: i.destino.trim(), nota, request_id: i.request_id });
-    if (r.ok || r.duplicado) {
-      hechas++; if (r.aviso) avisos.push(r.aviso);
-      S.cart = S.cart.filter(x => x !== i);
-      delete S.stock[i.id];
-    } else { fallos++; i.msg = { ok: false, text: r.error || 'No se pudo retirar.' }; if (typeof r.disponible === 'number') S.stock[i.id] = r.disponible; }
-  }
-  S.busy = false; btn.disabled = false;
-  renderCart();
-  if (fallos === 0) {
-    $('nota').value = ''; S.lastDestino = '';
-    const d = $('doneMsg'); d.className = avisos.length ? 'warnbox' : 'okbox'; d.style.marginBottom = '10px';
-    d.textContent = avisos.length ? avisos[0] : `✓ Retirada registrada (${hechas} ${hechas === 1 ? 'artículo' : 'artículos'}).`;
-    clearTimeout(S.doneT); S.doneT = setTimeout(() => d.classList.add('hidden'), 6000);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  } else {
-    const b = $('sendMsg'); b.className = 'err';
-    b.textContent = hechas ? `${hechas} registrada(s), ${fallos} con error. Revisa los marcados en rojo.` : 'No se pudo registrar. Revisa los avisos en rojo.';
-  }
-});
+  box.append(b); box.classList.remove('hidden');
+}
+window.addEventListener('online', () => { actualizarRed(); flushQueue(); });
+window.addEventListener('offline', actualizarRed);
+function actualizarRed() { $('offBar').classList.toggle('hidden', navigator.onLine !== false || DEMO); }
+setInterval(() => { if (S.emp && qGet().some(x => x.emp === S.emp && !x.error)) flushQueue(); }, 30000);
 
 // ---------- historial ----------
-async function loadHist() {
-  $('hist').innerHTML = '<span class="spin"></span> Cargando…'; $('histSummary').textContent = '';
+async function loadHist(silencioso) {
+  if (!silencioso) { $('hist').innerHTML = '<span class="spin"></span> Cargando…'; $('histSummary').textContent = ''; }
   const r = await api('historial');
-  if (!r.ok) { $('hist').textContent = r.error || 'No se pudo cargar el historial.'; return; }
-  S.hist = r.filas;
+  if (!r.ok) { if (!silencioso) $('hist').textContent = r.error || 'No se pudo cargar el historial.'; return; }
+  S.hist = r.filas; S.histLimit = 60;
   if (S.admin) {
     const sel = $('fEmp'), cur = sel.value; sel.textContent = ''; sel.append(el('option', { value: '', text: 'Todos los empleados' }));
     for (const n of [...new Set(S.hist.map(f => f.empleado))].sort()) sel.append(el('option', { value: n, text: n }));
     sel.value = cur;
   }
+  cargarFrecuentes();
   renderHist();
+  if (S.tab === 'p' && S.panelPg === 'apto') renderApto();
 }
+const diaIso = f => { const d = new Date(f); return isNaN(d) ? '' : d.toLocaleDateString('sv-SE'); };
 function filtradas() {
   if (!S.admin) return S.hist;
-  const emp = $('fEmp').value, t = norm($('fText').value), d1 = $('fFrom').value, d2 = $('fTo').value;
+  const emp = $('fEmp').value, tipo = $('fTipo').value, t = norm($('fText').value), d1 = $('fFrom').value, d2 = $('fTo').value;
   return S.hist.filter(f => {
     if (emp && f.empleado !== emp) return false;
+    if (tipo && f.tipo !== tipo) return false;
     if (t && !norm(f.producto + ' ' + f.destino + ' ' + f.sku + ' ' + f.nota).includes(t)) return false;
-    const dia = new Date(f.fecha); const iso = isNaN(dia) ? '' : dia.toLocaleDateString('sv-SE');
+    const iso = diaIso(f.fecha);
     if (d1 && iso < d1) return false; if (d2 && iso > d2) return false;
     return true;
   });
@@ -430,33 +704,129 @@ function filtradas() {
 function renderHist() {
   const box = $('hist'); box.textContent = '';
   const fs = filtradas();
-  const uds = fs.reduce((a, f) => a + (Number(f.cantidad) || 0), 0);
-  $('histSummary').textContent = fs.length ? `${fs.length} movimientos · ${uds} unidades` : '';
-  if (!fs.length) { box.textContent = 'Todavía no hay retiradas.'; return; }
-  for (const f of fs) {
+  const sal = fs.filter(f => f.tipo !== 'entrada'), ent = fs.filter(f => f.tipo === 'entrada');
+  $('histSummary').textContent = fs.length ? `${sal.length} retiradas · ${sum(sal, f => f.cantidad)} uds` + (ent.length ? ` · ${ent.length} entradas · ${sum(ent, f => f.cantidad)} uds` : '') : '';
+  if (!fs.length) { box.textContent = 'Todavía no hay movimientos.'; $('btnHistMore').classList.add('hidden'); return; }
+  for (const f of fs.slice(0, S.histLimit)) {
+    const ent = f.tipo === 'entrada';
     box.append(el('div', { class: 'hrow' },
-      el('div', { class: 'a' }, el('span', { text: f.producto }), el('span', { class: 'qty', text: '−' + f.cantidad })),
-      el('div', { class: 'b', text: `${fmtFecha(f.fecha)}${S.admin ? ' · ' + f.empleado : ''} · ${f.destino}${f.nota ? ' · ' + f.nota : ''}` })));
+      el('div', { class: 'a' }, el('span', { text: f.producto }), el('span', { class: 'qty' + (ent ? ' in' : ''), text: (ent ? '+' : '−') + f.cantidad })),
+      el('div', { class: 'b', text: `${fmtFecha(f.fecha)}${S.admin ? ' · ' + f.empleado : ''} · ${ent ? 'Entrada' : f.destino}${f.nota ? ' · ' + f.nota : ''}` })));
   }
+  $('btnHistMore').classList.toggle('hidden', fs.length <= S.histLimit);
+  $('btnHistMore').textContent = `Mostrar más (${fs.length - S.histLimit})`;
 }
-['fEmp', 'fText', 'fFrom', 'fTo'].forEach(id => $(id).addEventListener('input', renderHist));
-$('btnReload').addEventListener('click', loadHist);
+$('btnHistMore').addEventListener('click', () => { S.histLimit += 60; renderHist(); });
+['fEmp', 'fTipo', 'fText', 'fFrom', 'fTo'].forEach(id => $(id).addEventListener('input', () => { S.histLimit = 60; renderHist(); }));
+$('btnReload').addEventListener('click', () => { loadHist(); flushQueue(); });
+function descargarCsv(nombre, filas) {
+  const cell = v => { let s = String(v ?? ''); if (/^[=+\-@\t\r]/.test(s)) s = "'" + s; return '"' + s.replace(/"/g, '""') + '"'; };
+  const csv = '﻿' + filas.map(r => r.map(cell).join(';')).join('\r\n');
+  const a = el('a', { href: URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' })), download: nombre + '_' + new Date().toISOString().slice(0, 10) + '.csv' });
+  document.body.append(a); a.click(); a.remove();
+}
 $('btnCsv').addEventListener('click', () => {
   const fs = filtradas(); if (!fs.length) { toast('No hay datos que exportar'); return; }
-  const cell = v => { let s = String(v ?? ''); if (/^[=+\-@\t\r]/.test(s)) s = "'" + s; return '"' + s.replace(/"/g, '""') + '"'; };
-  const filas = [['Fecha', 'Empleado', 'SKU', 'Producto', 'Cantidad', 'Destino', 'Nota']]
-    .concat(fs.map(f => { const d = new Date(f.fecha); return [isNaN(d) ? f.fecha : d.toLocaleString('es-ES'), f.empleado, f.sku, f.producto, f.cantidad, f.destino, f.nota]; }));
-  const csv = '﻿' + filas.map(r => r.map(cell).join(';')).join('\r\n');
-  const a = el('a', { href: URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' })), download: 'retiradas_almacen_' + new Date().toISOString().slice(0, 10) + '.csv' });
-  document.body.append(a); a.click(); a.remove();
+  descargarCsv('movimientos_almacen', [['Fecha', 'Tipo', 'Empleado', 'SKU', 'Producto', 'Cantidad', 'Destino', 'Nota']]
+    .concat(fs.map(f => { const d = new Date(f.fecha); return [isNaN(d) ? f.fecha : d.toLocaleString('es-ES'), f.tipo === 'entrada' ? 'Entrada' : 'Retirada', f.empleado, f.sku, f.producto, f.cantidad, f.destino, f.nota]; })));
 });
+
+// ---------- panel (solo administradores) ----------
+async function loadPanel() {
+  $('pList').innerHTML = '<span class="spin"></span> Cargando stock de Holded…'; $('pSum').textContent = '';
+  const r = await api('panel');
+  if (!r.ok) { S.panel = null; $('pList').textContent = r.error || 'No se pudo cargar el stock.'; $('pList').className = r.error ? 'line-err' : ''; renderAlmacenes(r.almacenes); return; }
+  $('pList').className = '';
+  S.panel = r; renderPanel();
+}
+function renderAlmacenes(alm) {
+  const a = alm || (S.panel && S.panel.almacenes) || [];
+  $('pAlm').textContent = a.length ? 'Almacenes en Holded: ' + a.map(x => `${x.nombre || 'sin nombre'} (${x.id})`).join(' · ') : '';
+}
+function fillPanelCats() {
+  const sel = $('pCat'), cur = sel.value; sel.textContent = '';
+  const cuenta = {}; for (const p of S.productos) cuenta[catDe(p)] = (cuenta[catDe(p)] || 0) + 1;
+  for (const [k, n] of CATS) if (!k || cuenta[k]) sel.append(el('option', { value: k, text: n }));
+  sel.value = cur;
+}
+const pMin = () => Math.max(1, Math.floor(Number($('pMin').value)) || 2);
+function filasPanel() {
+  if (!S.panel) return [];
+  const st = S.panel.stock || {}, min = pMin(), cat = $('pCat').value, n = norm($('pText').value).trim();
+  const palabras = n ? n.split(/\s+/) : [];
+  let rows = S.productos.filter(p => !cat || catDe(p) === cat)
+    .filter(p => !palabras.length || (h => palabras.every(w => h.includes(w)))(norm(p.name + ' ' + p.sku)))
+    .map(p => ({ p, q: Number(st[p.id]) || 0 }));
+  if (S.pm === 'cero') rows = rows.filter(r => r.q <= 0);
+  else if (S.pm === 'bajo') rows = rows.filter(r => r.q > 0 && r.q <= min);
+  return rows.sort((a, b) => (S.pm === 'todo' ? a.p.name.localeCompare(b.p.name, 'es', { numeric: true }) : a.q - b.q || a.p.name.localeCompare(b.p.name, 'es', { numeric: true })));
+}
+function renderPanel() {
+  document.querySelectorAll('[data-pm]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.pm === S.pm)));
+  $('pgStock').setAttribute('aria-pressed', String(S.panelPg === 'stock')); $('pgApto').setAttribute('aria-pressed', String(S.panelPg === 'apto'));
+  $('pnStock').classList.toggle('hidden', S.panelPg !== 'stock'); $('pnApto').classList.toggle('hidden', S.panelPg !== 'apto');
+  if (S.panelPg === 'apto') { renderApto(); return; }
+  renderAlmacenes();
+  if (!S.panel) return;
+  const st = S.panel.stock || {}, min = pMin();
+  const todos = S.productos.map(p => Number(st[p.id]) || 0);
+  $('pSum').textContent = `${todos.filter(q => q <= 0).length} agotados · ${todos.filter(q => q > 0 && q <= min).length} con ${min} o menos · ${S.productos.length} productos`;
+  const rows = filasPanel(), box = $('pList'); box.textContent = '';
+  for (const { p, q } of rows.slice(0, S.pLimit)) {
+    box.append(el('div', { class: 'srow' },
+      el('div', { class: 'n' }, el('b', { text: p.name }), el('span', { text: p.sku })),
+      el('div', { class: 'sq' + (q <= 0 ? ' zero' : q <= min ? ' low' : ''), text: String(q) })));
+  }
+  if (!rows.length) box.textContent = S.pm === 'cero' ? '🎉 No hay productos agotados con este filtro.' : 'Nada que mostrar con este filtro.';
+  $('pMore').classList.toggle('hidden', rows.length <= S.pLimit);
+  $('pMore').textContent = `Mostrar más (${rows.length - S.pLimit})`;
+}
+document.querySelectorAll('[data-pm]').forEach(b => b.addEventListener('click', () => { S.pm = b.dataset.pm; S.pLimit = 60; renderPanel(); }));
+['pMin', 'pCat', 'pText'].forEach(id => $(id).addEventListener('input', () => { S.pLimit = 60; if (id === 'pMin') lsSet('alm_pmin', pMin()); renderPanel(); }));
+$('pMore').addEventListener('click', () => { S.pLimit += 60; renderPanel(); });
+$('pCsv').addEventListener('click', () => {
+  const rows = filasPanel(); if (!rows.length) { toast('No hay nada que exportar'); return; }
+  descargarCsv('stock_almacen', [['SKU', 'Producto', 'Stock']].concat(rows.map(r => [r.p.sku, r.p.name, r.q])));
+});
+$('pgStock').addEventListener('click', () => { S.panelPg = 'stock'; renderPanel(); });
+$('pgApto').addEventListener('click', () => { S.panelPg = 'apto'; if (!S.hist.length) loadHist(true); renderPanel(); });
+$('btnPanelReload').addEventListener('click', async () => { if (S.panelPg === 'apto') { await loadHist(true); renderApto(); } else loadPanel(); });
+$('pMin').value = lsGet('alm_pmin', 2);
+
+function renderApto() {
+  const t = norm($('aText').value).trim(), d1 = $('aFrom').value, d2 = $('aTo').value;
+  const m = new Map();
+  for (const f of S.hist) {
+    if (f.tipo === 'entrada') continue;
+    const iso = diaIso(f.fecha); if ((d1 && iso < d1) || (d2 && iso > d2)) continue;
+    const dst = String(f.destino || '').replace(/_/g, ' ');
+    if (t && !norm(dst).includes(t)) continue;
+    let a = m.get(dst); if (!a) m.set(dst, a = { dst, uds: 0, n: 0, ult: '', items: new Map() });
+    a.uds += Number(f.cantidad) || 0; a.n++; if (String(f.fecha) > a.ult) a.ult = String(f.fecha);
+    const it = a.items.get(f.sku + '|' + f.producto) || { producto: f.producto, uds: 0 }; it.uds += Number(f.cantidad) || 0; a.items.set(f.sku + '|' + f.producto, it);
+  }
+  const arr = [...m.values()].sort((a, b) => b.uds - a.uds);
+  $('aSum').textContent = arr.length ? `${arr.length} destinos · ${sum(arr, a => a.uds)} uds` + (S.hist.length >= 2000 ? ' · solo los últimos 2000 movimientos' : '') : '';
+  const box = $('aList'); box.textContent = '';
+  if (!arr.length) { box.textContent = S.hist.length ? 'Ningún destino con ese filtro.' : 'Todavía no hay retiradas.'; $('aMore').classList.add('hidden'); return; }
+  for (const a of arr.slice(0, S.aLimit)) {
+    const sub = el('div', { class: 'sub' });
+    for (const it of [...a.items.values()].sort((x, y) => y.uds - x.uds)) sub.append(el('div', {}, el('span', { text: it.producto }), el('span', { text: '−' + it.uds })));
+    sub.append(el('div', {}, el('span', { text: 'Última retirada' }), el('span', { text: fmtFecha(a.ult) })));
+    box.append(el('details', { class: 'apto' }, el('summary', {}, el('span', { text: a.dst }), el('span', { class: 'qty', text: `${a.uds} uds · ${a.n}` })), sub));
+  }
+  $('aMore').classList.toggle('hidden', arr.length <= S.aLimit);
+  $('aMore').textContent = `Mostrar más (${arr.length - S.aLimit})`;
+}
+['aText', 'aFrom', 'aTo'].forEach(id => $(id).addEventListener('input', () => { S.aLimit = 40; renderApto(); }));
+$('aMore').addEventListener('click', () => { S.aLimit += 40; renderApto(); });
 
 // lector USB/Bluetooth: si no hay ningún campo activo, lo que "teclea" va al buscador
 document.addEventListener('keydown', e => {
   if (e.ctrlKey || e.metaKey || e.altKey || e.key.length !== 1) return;
   if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) return;
-  if ($('vApp').classList.contains('hidden') || $('tRetirar').classList.contains('hidden') || !$('scan').classList.contains('hidden')) return;
-  $('q').focus();
+  if ($('vApp').classList.contains('hidden') || !$('scan').classList.contains('hidden')) return;
+  if (S.tab === 'r' || S.tab === 'e') pickerActivo().focus();
 });
 
 // ---------- escáner ----------
@@ -468,12 +838,13 @@ function beep() {
     o.frequency.value = 1100; g.gain.value = 0.12; o.connect(g); g.connect(c.destination); o.start(); o.stop(c.currentTime + 0.12);
   } catch (e) {}
 }
+const ZX_URL = 'https://cdn.jsdelivr.net/npm/@zxing/library@0.21.3/umd/index.min.js';
 async function loadZXing() {
   if (window.ZXing) return window.ZXing;
-  await new Promise((ok, ko) => { const s = document.createElement('script'); s.src = 'https://cdn.jsdelivr.net/npm/@zxing/library@0.21.3/umd/index.min.js'; s.onload = ok; s.onerror = () => ko(new Error('zxing')); document.head.append(s); });
+  await new Promise((ok, ko) => { const s = document.createElement('script'); s.src = ZX_URL; s.onload = ok; s.onerror = () => ko(new Error('zxing')); document.head.append(s); });
   return window.ZXing;
 }
-$('btnScan').addEventListener('click', async () => {
+async function openScan(onProducto) {
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { toast('Este navegador no permite usar la cámara. Usa el buscador.', 3500); return; }
   $('scan').classList.remove('hidden'); $('scanMsg').textContent = 'Abriendo cámara…';
   let stream;
@@ -494,7 +865,7 @@ $('btnScan').addEventListener('click', async () => {
     const now = Date.now(); if (raw === st.last && now - st.lastT < 1500) return;
     st.last = raw; st.lastT = now;
     const p = porCodigo(raw);
-    if (p) { st.stop = true; if (navigator.vibrate) navigator.vibrate(60); beep(); closeScan(); addToCart(p); }
+    if (p) { st.stop = true; if (navigator.vibrate) navigator.vibrate(60); beep(); closeScan(); onProducto(p); }
     else { $('scanMsg').textContent = 'Código no reconocido: ' + raw; }
   };
   try {
@@ -532,44 +903,69 @@ $('btnScan').addEventListener('click', async () => {
       loop();
     }
   } catch (e) { $('scanMsg').textContent = 'No se pudo iniciar el lector. Usa el buscador.'; }
-});
+}
 function closeScan() {
   if (scanState) { scanState.stop = true; scanState.stream.getTracks().forEach(t => t.stop()); scanState = null; }
   $('video').srcObject = null; $('scan').classList.add('hidden');
 }
 $('btnScanClose').addEventListener('click', closeScan);
 
+// ---------- instalar como app + funcionamiento sin conexión ----------
+let instalar = null;
+window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); instalar = e; pintarInstalar(); });
+window.addEventListener('appinstalled', () => { instalar = null; pintarInstalar(); });
+function pintarInstalar() {
+  const standalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+  const ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  document.querySelectorAll('.installHint').forEach(n => {
+    n.textContent = ''; if (standalone) return;
+    if (instalar) { n.append(' · ', el('a', { href: '#', style: 'color:var(--accent);font-weight:600', onclick: ev => { ev.preventDefault(); instalar.prompt(); } }, '📲 Instalar app')); }
+    else if (ios) n.append(' · iPhone: Compartir → «Añadir a pantalla de inicio»');
+  });
+}
+pintarInstalar();
+if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost') && !DEMO) {
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+}
+
 // ---------- demo ----------
 const demo = { hist: [], stock: {} };
 const DEMO_PRODS = [
   ['LP-SAB-105', 'Sábana encimera 180×275 (cama 105)', 1145], ['LP-NOR-105', 'Funda nórdica 180×220+40 (cama 105)', 1126],
-  ['LP-SAB-180', 'Sábana encimera 260×275 (cama 180)', 1230], ['LP-NOR-180', 'Funda nórdica 270×220+40 (cama 180)', 1211],
-  ['LP-FALM-90', 'Funda de almohada 45×90+20', 500], ['LP-FALM-75', 'Funda de almohada 45×75+20', 4780],
-  ['LP-TOA-LAV', 'Toalla de lavabo', 0], ['LP-TOA-BAN', 'Toalla de baño', 0], ['LP-ALF-50', 'Alfombra de baño 50×70', 0],
-  ['LP-PCOL-90190', 'Protector colchón 90×190', 100], ['LP-PCOL-135190', 'Protector colchón 135×190', 100],
-  ['LP-PCOL-150190', 'Protector colchón 150×190', 104], ['LP-PCOL-180190', 'Protector colchón 180×190', 98],
-  ['LP-PCOL-90200', 'Protector colchón 90×200', 95], ['LP-PCOL-135200', 'Protector colchón 135×200', 94],
-  ['LP-PCOL-150200', 'Protector colchón 150×200', 99], ['LP-PCOL-180200', 'Protector colchón 180×200', 100],
-  ['LP-PALM-4575', 'Protector almohada 45×75', 100], ['LP-PALM-4595', 'Protector almohada 45×95', 100]
-].map(([sku, name, st], i) => { const id = String(i).padStart(24, '0'); demo.stock[id] = st; return { id, sku, barcode: sku, name }; });
+  ['LP-SAB-180', 'Sábana encimera 260×275 (cama 180)', 1230], ['LP-TOA-LAV', 'Toalla de lavabo', 0], ['LP-TOA-BAN', 'Toalla de baño', 0],
+  ['LP-PCOL-90190', 'Protector colchón 90×190', 100],
+  ['LIM-001', 'Abridor', 17], ['LIM-002', 'Agua oxigenada', 15], ['LIM-010', 'Botiquín', 21], ['LIM-043', 'Cuna', 0],
+  ['MCO-016', 'Bombillas casquillo gordo', 29], ['MCO-082', 'Microondas', 4], ['MCO-152', 'TV 43 pulgadas', 0], ['MCO-075', 'Llaves de escuadra', 1],
+  ['MHE-004', 'Atornillador eléctrico Einhell', 1], ['MHE-014', 'Multímetro', 2],
+  ['MMO-084', 'Plato de bambú', 1], ['MMO-102', 'Zapatero IKEA blanco de plástico', 1]
+].map(([sku, name, st], i) => { const id = String(i + 1).padStart(24, '0'); demo.stock[id] = st; return { id, sku, barcode: sku, name }; });
 const DEMO_EMP = [{ id: 'emp1', nombre: 'Hugo Romero', admin: true }, { id: 'emp2', nombre: 'Empleado 2' }, { id: 'emp3', nombre: 'Empleado 3' }];
 async function demoApi(action, x) {
-  await new Promise(r => setTimeout(r, 150));
+  await new Promise(r => setTimeout(r, 60));
+  if (window.__demoOffline) return { ok: false, offline: true, error: 'Sin conexión con el servidor. Revisa la cobertura e inténtalo de nuevo.' };
   const me = DEMO_EMP.find(e => e.id === S.emp);
   if (action === 'empleados') return { ok: true, empleados: DEMO_EMP.map(({ id, nombre }) => ({ id, nombre })) };
-  if (action === 'login') return S.pin === '1234' && me ? { ok: true, nombre: me.nombre, admin: !!me.admin } : { ok: false, error: 'PIN incorrecto (en demo es 1234).' };
+  if (action === 'login') return S.pin === '1234' && me ? { ok: true, nombre: me.nombre, admin: !!me.admin, puede_recibir: !!me.admin } : { ok: false, error: 'PIN incorrecto (en demo es 1234).' };
   if (action === 'productos') return { ok: true, productos: DEMO_PRODS };
   if (action === 'stock') return { ok: true, product_id: x.product_id, disponible: demo.stock[x.product_id], total: demo.stock[x.product_id] };
-  if (action === 'retirar') {
+  if (action === 'retirar' || action === 'recibir') {
+    const ent = action === 'recibir';
+    if (ent && !me.admin) return { ok: false, error: 'No tienes permiso para registrar entradas.' };
+    if (demo.dup && demo.dup.includes(x.request_id)) return { ok: true, duplicado: true };
     const d = demo.stock[x.product_id];
-    if (x.cantidad > d) return { ok: false, error: `Solo hay ${d} unidades disponibles.`, disponible: d };
-    demo.stock[x.product_id] -= x.cantidad;
-    demo.hist.push({ fecha: new Date().toISOString(), empleado: me.nombre, empleado_id: me.id, sku: x.sku, producto: x.producto, cantidad: x.cantidad, destino: x.destino, nota: x.nota || '' });
+    if (!ent && x.cantidad > d) return { ok: false, error: `Solo hay ${d} unidades disponibles.`, disponible: d };
+    demo.stock[x.product_id] += ent ? x.cantidad : -x.cantidad;
+    (demo.dup = demo.dup || []).push(x.request_id);
+    demo.hist.push({ fecha: x.fecha || new Date().toISOString(), empleado: me.nombre, empleado_id: me.id, sku: x.sku, producto: x.producto, cantidad: x.cantidad, destino: ent ? 'ENTRADA' : x.destino, nota: x.nota || '', tipo: ent ? 'entrada' : 'salida' });
     return { ok: true, stock_tras: demo.stock[x.product_id], registro_ok: true, aviso: '' };
   }
   if (action === 'historial') {
-    const filas = demo.hist.filter(f => me.admin || f.empleado_id === me.id).slice().reverse();
+    const filas = demo.hist.filter(f => me.admin || f.empleado_id === me.id).slice().sort((a, b) => String(b.fecha).localeCompare(String(a.fecha)));
     return { ok: true, admin: !!me.admin, filas };
+  }
+  if (action === 'panel') {
+    if (!me.admin) return { ok: false, error: 'Solo para administradores.' };
+    return { ok: true, stock: Object.assign({}, demo.stock), almacenes: [{ id: 'w1abc', nombre: 'Almacén principal' }], filas: DEMO_PRODS.length };
   }
   return { ok: false, error: 'Acción desconocida' };
 }
@@ -577,9 +973,10 @@ async function demoApi(action, x) {
 // ---------- arranque ----------
 (async function init() {
   if (DEMO) $('demoBar').classList.remove('hidden');
-  renderCart();
+  actualizarRed();
   let ses = null;
   try { ses = JSON.parse(sessionStorage.getItem('alm') || 'null'); } catch (e) {}
+  if (!ses) ses = lsGet('alm_ses', null);
   if (ses && ses.emp && ses.pin) { Object.assign(S, ses); await enterApp(); }
   else { show('login'); loadEmpleados(); }
 })();
